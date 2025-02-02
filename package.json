@@ -1,0 +1,44 @@
+{
+	"name": "veltrixcrm",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"type": "module",
+	"scripts": {
+		"start": "node src/server.js",
+		"dev": "nodemon src/server.js",
+		"db:generate": "npx sequelize-cli migration:generate --name create-",
+		"db:migrate": "npx sequelize-cli db:migrate",
+		"db:migrate:undo": "npx sequelize-cli db:migrate:undo",
+		"db:migrate:undo:all": "npx sequelize-cli db:migrate:undo:all",
+		"db:seed": "npx sequelize-cli db:seed:all",
+		"db:seed:undo": "npx sequelize-cli db:seed:undo:all"
+	},
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"axios": "^1.7.9",
+		"bull": "^4.16.5",
+		"cors": "^2.8.5",
+		"dotenv": "^16.0.3",
+		"express": "^4.18.2",
+		"form-data": "^4.0.1",
+		"joi": "^17.13.3",
+		"jsonwebtoken": "^9.0.2",
+		"multer": "^1.4.5-lts.1",
+		"nodemailer": "^6.10.0",
+		"pg": "^8.11.3",
+		"pg-hstore": "^2.3.4",
+		"redis": "^4.7.0",
+		"sequelize": "^6.33.0",
+		"swagger-jsdoc": "^6.2.8",
+		"swagger-ui-express": "^5.0.0",
+		"uuid": "^11.0.5"
+	},
+	"devDependencies": {
+		"@types/express": "^5.0.0",
+		"cross-env": "^7.0.3",
+		"nodemon": "^3.0.2",
+		"sequelize-cli": "^6.6.2"
+	}
+}
