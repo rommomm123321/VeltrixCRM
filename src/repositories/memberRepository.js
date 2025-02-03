@@ -1,11 +1,14 @@
+import sequelize from '../config/db.js'
 import {
 	Hall,
 	Member,
 	MemberSubscriptions,
+	MemberTransaction,
 	Section,
 	Subscription,
 } from '../models/index.js'
 import { responses } from '../utils/responses.js'
+import memberTransactionRepository from './memberTransactionRepository.js'
 
 const findAllByUser = async (
 	userId,
@@ -38,6 +41,10 @@ const findAllByUser = async (
 					},
 				],
 			},
+			{
+				model: MemberTransaction,
+				required: false,
+			},
 		],
 	})
 }
@@ -51,8 +58,17 @@ const findById = async id => {
 }
 
 const create = async memberData => {
-	const { hallId, sections, userId, firstName, lastName, age, gender } =
-		memberData
+	const {
+		hallId,
+		sections,
+		userId,
+		firstName,
+		lastName,
+		age,
+		gender,
+		phone,
+		email,
+	} = memberData
 
 	const newMember = await Member.create({
 		userId,
@@ -60,6 +76,8 @@ const create = async memberData => {
 		lastName,
 		age,
 		gender,
+		phone,
+		email,
 	})
 
 	const expirationDate = new Date()
@@ -72,6 +90,15 @@ const create = async memberData => {
 			})
 			if (!subscription)
 				throw new Error(`Subscription ${subscriptionId} not found`)
+
+			await memberTransactionRepository.addSubscriptionToMember(
+				userId,
+				newMember.id,
+				hallId,
+				sectionId,
+				subscriptionId,
+				subscription.price
+			)
 
 			return {
 				memberId: newMember.id,
@@ -102,50 +129,75 @@ const update = async (id, memberData) => {
 		lastName: memberData.lastName,
 		age: memberData.age,
 		gender: memberData.gender,
+		phone: memberData.phone,
+		email: memberData.email,
 	})
 
-	if (memberData.sections && memberData.sections.length === 0) {
-		await MemberSubscriptions.destroy({
-			where: { memberId: id },
-		})
-	} else {
-		await MemberSubscriptions.destroy({
-			where: { memberId: id },
-		})
+	const existingSubscriptions = await MemberSubscriptions.findAll({
+		where: { memberId: id },
+	})
+	const existingMap = new Map(
+		existingSubscriptions.map(sub => [sub.sectionId, sub])
+	)
 
-		for (const section of memberData.sections) {
-			const subscription = await Subscription.findByPk(section.subscriptionId, {
-				attributes: ['price', 'numberOfSessions'],
-			})
-			if (!subscription) {
-				throw new Error(
-					`Subscription with ID ${section.subscriptionId} not found`
+	const expirationDate = new Date()
+	expirationDate.setDate(expirationDate.getDate() + 30)
+
+	for (const section of memberData.sections) {
+		const { sectionId, subscriptionId } = section
+		const existingSubscription = existingMap.get(sectionId)
+
+		const subscription = await Subscription.findByPk(subscriptionId, {
+			attributes: ['price', 'numberOfSessions'],
+		})
+		if (!subscription) {
+			throw new Error(`Subscription with ID ${subscriptionId} not found`)
+		}
+
+		if (existingSubscription) {
+			if (existingSubscription.subscriptionId !== subscriptionId) {
+				existingSubscription.subscriptionId = subscriptionId
+				existingSubscription.priceAtPurchase = subscription.price
+				existingSubscription.totalSessions = subscription.numberOfSessions
+				existingSubscription.expirationDate = expirationDate
+				await existingSubscription.save()
+
+				await memberTransactionRepository.addSubscriptionToMember(
+					member.userId,
+					id,
+					memberData.hallId,
+					sectionId,
+					subscriptionId,
+					subscription.price
 				)
 			}
-
-			const existingSubscription = await MemberSubscriptions.findOne({
-				where: {
-					memberId: id,
-					sectionId: section.sectionId,
-					subscriptionId: section.subscriptionId,
-				},
+		} else {
+			await MemberSubscriptions.create({
+				memberId: id,
+				hallId: memberData.hallId,
+				sectionId,
+				subscriptionId,
+				priceAtPurchase: subscription.price,
+				totalSessions: subscription.numberOfSessions,
+				expirationDate,
+				status: 'active',
 			})
 
-			if (!existingSubscription) {
-				const expirationDate = new Date()
-				expirationDate.setDate(expirationDate.getDate() + 30)
+			await memberTransactionRepository.addSubscriptionToMember(
+				member.userId,
+				id,
+				memberData.hallId,
+				sectionId,
+				subscriptionId,
+				subscription.price
+			)
+		}
+	}
 
-				await MemberSubscriptions.create({
-					memberId: id,
-					hallId: memberData.hallId,
-					sectionId: section.sectionId,
-					subscriptionId: section.subscriptionId,
-					priceAtPurchase: subscription.price,
-					totalSessions: subscription.numberOfSessions,
-					expirationDate,
-					status: 'active',
-				})
-			}
+	const newSectionIds = new Set(memberData.sections.map(s => s.sectionId))
+	for (const sub of existingSubscriptions) {
+		if (!newSectionIds.has(sub.sectionId)) {
+			await sub.destroy()
 		}
 	}
 

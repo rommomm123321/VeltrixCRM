@@ -5,7 +5,7 @@ import {
 	MemberSubscriptions,
 } from '../models/index.js'
 import { responses } from '../utils/responses.js'
-import { sectionRepository } from './index.js'
+import { memberTransactionRepository, sectionRepository } from './index.js'
 
 const findAllByUser = async (
 	userId,
@@ -125,14 +125,21 @@ const trackVisit = async (memberId, sectionId) => {
 	}
 }
 
-const renewSubscription = async (memberId, sectionId, subscriptionId) => {
+const renewSubscription = async (
+	memberId,
+	sectionId,
+	subscriptionId,
+	userId
+) => {
 	const currentSubscription = await MemberSubscriptions.findOne({
 		where: {
 			memberId: memberId,
 			sectionId: sectionId,
-			// status: 'active',
 		},
 	})
+	if (currentSubscription.status == 'active') {
+		throw new Error(`Subscription status is active`)
+	}
 	if (currentSubscription) {
 		const subscription = await Subscription.findByPk(subscriptionId, {
 			attributes: ['price', 'numberOfSessions'],
@@ -144,16 +151,19 @@ const renewSubscription = async (memberId, sectionId, subscriptionId) => {
 		const newExpirationDate = new Date()
 		newExpirationDate.setDate(newExpirationDate.getDate() + 30)
 
-		const priceAtPurchase = parseFloat(currentSubscription.priceAtPurchase) || 0
-		const price = parseFloat(subscription.price) || 0
-
 		currentSubscription.subscriptionId = subscriptionId
-		currentSubscription.priceAtPurchase = priceAtPurchase + price
 		currentSubscription.expirationDate = newExpirationDate
 		currentSubscription.usedSessions = 0
 		currentSubscription.status = 'active'
-
 		await currentSubscription.save()
+		await memberTransactionRepository.addSubscriptionToMember(
+			userId,
+			memberId,
+			currentSubscription.hallId,
+			sectionId,
+			subscriptionId,
+			subscription.price
+		)
 	} else {
 		const subscription = await Subscription.findByPk(subscriptionId, {
 			attributes: ['price'],
@@ -165,7 +175,7 @@ const renewSubscription = async (memberId, sectionId, subscriptionId) => {
 		const newExpirationDate = new Date()
 		newExpirationDate.setDate(newExpirationDate.getDate() + 30)
 
-		await MemberSubscriptions.create({
+		const newMemberSubscriptions = await MemberSubscriptions.create({
 			memberId,
 			sectionId,
 			subscriptionId,
@@ -174,6 +184,14 @@ const renewSubscription = async (memberId, sectionId, subscriptionId) => {
 			usedSessions: 0,
 			status: 'active',
 		})
+		await memberTransactionRepository.addSubscriptionToMember(
+			userId,
+			memberId,
+			newMemberSubscriptions.hallId,
+			sectionId,
+			subscriptionId,
+			subscription.price
+		)
 	}
 }
 

@@ -1,6 +1,6 @@
 import { hallService } from '../services/index.js'
-import { requestCreateHall, requestUpdateHall } from '../validation/index.js'
 import { responseSuccess, responseError } from '../utils/responseHelper.js'
+import { requestHall } from '../validation/index.js'
 
 const getAllHallsByUser = async (req, res) => {
 	const { id: userId } = req.user
@@ -24,7 +24,7 @@ const getHallById = async (req, res) => {
 
 const createHall = async (req, res) => {
 	try {
-		await requestCreateHall.validateAsync(req.body)
+		await requestHall.validateAsync(req.body)
 		const newHall = await hallService.createHall({
 			...req.body,
 			userId: req.user.id,
@@ -37,7 +37,7 @@ const createHall = async (req, res) => {
 
 const updateHall = async (req, res) => {
 	try {
-		await requestUpdateHall.validateAsync(req.body)
+		await requestHall.validateAsync(req.body)
 		const updatedHall = await hallService.updateHall(req.params.id, req.body)
 		responseSuccess(res, 200, updatedHall)
 	} catch (error) {

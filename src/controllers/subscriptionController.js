@@ -1,5 +1,11 @@
 import { subscriptionService } from '../services/index.js'
 import { responseError, responseSuccess } from '../utils/responseHelper.js'
+import { responses } from '../utils/responses.js'
+import {
+	requestSubscription,
+	requestTrackVisit,
+	requestRenewSubscription,
+} from '../validation/index.js'
 
 const getAllSubscriptionsByUser = async (req, res) => {
 	const { id: userId } = req.user
@@ -31,6 +37,7 @@ const createSubscription = async (req, res) => {
 	const { id: userId } = req.user
 	const { sectionIds = [], ...subscriptionData } = req.body
 	try {
+		await requestSubscription.validateAsync(req.body)
 		const newSubscription = await subscriptionService.createSubscription(
 			{
 				...subscriptionData,
@@ -48,6 +55,7 @@ const updateSubscription = async (req, res) => {
 	const { id: userId } = req.user
 	const { sectionIds = [], ...subscriptionData } = req.body
 	try {
+		await requestSubscription.validateAsync(req.body)
 		const updatedSubscription = await subscriptionService.updateSubscription(
 			req.params.id,
 			subscriptionData,
@@ -65,7 +73,9 @@ const deleteSubscription = async (req, res) => {
 		const ids = req.body.id || req.params.id
 
 		if (!ids) {
-			return responseError(res, 400, { error: 'No IDs provided for deletion' })
+			return responseError(res, 400, {
+				error: responses.error.noIdsProvidedForDeletion,
+			})
 		}
 
 		await subscriptionService.deleteSubscription(ids)
@@ -77,25 +87,31 @@ const deleteSubscription = async (req, res) => {
 
 const trackVisitController = async (req, res) => {
 	try {
+		await requestTrackVisit.validateAsync(req.body)
 		const { memberId, sectionId } = req.body
 		await subscriptionService.trackVisit(memberId, sectionId)
-		res.status(200).send({ message: 'Visit tracked successfully' })
+		responseSuccess(res, 200, { message: responses.success.visitTracked })
 	} catch (error) {
-		res.status(400).send({ error: error.message })
+		responseError(res, 400, { error: error.message })
 	}
 }
 
 const renewSubscription = async (req, res) => {
 	try {
+		await requestRenewSubscription.validateAsync(req.body)
+		const { id: userId } = req.user
 		const { memberId, sectionId, subscriptionId } = req.body
 		await subscriptionService.renewSubscription(
 			memberId,
 			sectionId,
-			subscriptionId
+			subscriptionId,
+			userId
 		)
-		res.status(200).send({ message: 'Subscription renewed successfully' })
+		responseSuccess(res, 200, {
+			message: responses.success.subscriptionRenewed,
+		})
 	} catch (error) {
-		res.status(400).send({ error: error.message })
+		responseError(res, 400, { error: error.message })
 	}
 }
 

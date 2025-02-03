@@ -3,7 +3,8 @@ import userRepository from './userRepository.js'
 import sectionRepository from './sectionRepository.js'
 import subscriptionRepository from './subscriptionRepository.js'
 import memberRepository from './memberRepository.js'
-import memberSubscriptions from './memberSubscriptions.js'
+import memberSubscriptionsRepository from './memberSubscriptionsRepository.js'
+import memberTransactionRepository from './memberTransactionRepository.js'
 
 export {
 	hallRepository,
@@ -11,5 +12,6 @@ export {
 	sectionRepository,
 	subscriptionRepository,
 	memberRepository,
-	memberSubscriptions,
+	memberSubscriptionsRepository,
+	memberTransactionRepository,
 }

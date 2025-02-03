@@ -34,12 +34,14 @@ export const trackVisit = async (memberId, sectionId) => {
 export const renewSubscription = async (
 	memberId,
 	sectionId,
-	subscriptionId
+	subscriptionId,
+	userId
 ) => {
 	await subscriptionRepository.renewSubscription(
 		memberId,
 		sectionId,
-		subscriptionId
+		subscriptionId,
+		userId
 	)
 }
 

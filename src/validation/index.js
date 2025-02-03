@@ -19,7 +19,7 @@ export const requestVerifyCode = Joi.object({
 	}),
 })
 
-export const requestCreateHall = Joi.object({
+export const requestHall = Joi.object({
 	name: Joi.string().min(3).max(255).required().messages({
 		'string.min': responses.validation.hallNameMin,
 		'string.max': responses.validation.hallNameMax,
@@ -27,10 +27,112 @@ export const requestCreateHall = Joi.object({
 	}),
 })
 
-export const requestUpdateHall = Joi.object({
+export const requestSection = Joi.object({
 	name: Joi.string().min(3).max(255).required().messages({
-		'string.min': responses.validation.hallNameMin,
-		'string.max': responses.validation.hallNameMax,
-		'any.required': responses.validation.hallNameRequired,
+		'string.min': responses.validation.sectionNameMin,
+		'string.max': responses.validation.sectionNameMax,
+		'any.required': responses.validation.sectionNameRequired,
+	}),
+	description: Joi.string().max(1000).optional().messages({
+		'string.max': responses.validation.sectionDescriptionMax,
+	}),
+	hallIds: Joi.array().items(Joi.number().integer()).optional().messages({
+		'array.base': responses.validation.sectionHallIdsArray,
+		'number.base': responses.validation.sectionHallIdsItems,
+	}),
+})
+
+export const requestSubscription = Joi.object({
+	name: Joi.string().min(3).max(255).required().messages({
+		'string.min': responses.validation.subscriptionNameMin,
+		'string.max': responses.validation.subscriptionNameMax,
+		'any.required': responses.validation.subscriptionNameRequired,
+	}),
+	numberOfSessions: Joi.number().integer().min(1).required().messages({
+		'number.base': responses.validation.subscriptionNumberOfSessionsInteger,
+		'number.min': responses.validation.subscriptionNumberOfSessionsMin,
+		'any.required': responses.validation.subscriptionNumberOfSessionsRequired,
+	}),
+	price: Joi.number().precision(2).positive().required().messages({
+		'number.base': responses.validation.subscriptionPriceNumber,
+		'number.precision': responses.validation.subscriptionPricePrecision,
+		'number.positive': responses.validation.subscriptionPricePositive,
+		'any.required': responses.validation.subscriptionPriceRequired,
+	}),
+	sectionIds: Joi.array().items(Joi.number().integer()).optional().messages({
+		'array.base': responses.validation.subscriptionSectionIdsArray,
+		'number.base': responses.validation.subscriptionSectionIdsItems,
+	}),
+})
+
+export const requestMember = Joi.object({
+	firstName: Joi.string().min(2).max(255).required().messages({
+		'string.min': responses.validation.memberFirstNameMin,
+		'string.max': responses.validation.memberFirstNameMax,
+		'any.required': responses.validation.memberFirstNameRequired,
+	}),
+	lastName: Joi.string().min(2).max(255).required().messages({
+		'string.min': responses.validation.memberLastNameMin,
+		'string.max': responses.validation.memberLastNameMax,
+		'any.required': responses.validation.memberLastNameRequired,
+	}),
+	age: Joi.number().min(18).max(100).required().messages({
+		'number.min': responses.validation.memberAgeMin,
+		'number.max': responses.validation.memberAgeMax,
+		'any.required': responses.validation.memberAgeRequired,
+	}),
+	gender: Joi.string().valid('male', 'female', 'other').required().messages({
+		'any.required': responses.validation.memberGenderRequired,
+		'string.valid': responses.validation.memberGenderValid,
+	}),
+	phone: Joi.string().max(200).required(),
+	email: Joi.string().max(200).required(),
+	hallId: Joi.number().integer().required().messages({
+		'number.base': responses.validation.memberHallIdNumber,
+		'any.required': responses.validation.memberHallIdRequired,
+	}),
+	sections: Joi.array()
+		.items(
+			Joi.object({
+				sectionId: Joi.number().integer().required().messages({
+					'number.base': responses.validation.memberSectionIdNumber,
+					'any.required': responses.validation.memberSectionIdRequired,
+				}),
+				subscriptionId: Joi.number().integer().required().messages({
+					'number.base': responses.validation.memberSubscriptionIdNumber,
+					'any.required': responses.validation.memberSubscriptionIdRequired,
+				}),
+			})
+		)
+		.optional()
+		.messages({
+			'array.base': responses.validation.memberSectionsArray,
+		}),
+})
+
+export const requestTrackVisit = Joi.object({
+	memberId: Joi.number().integer().required().messages({
+		'number.base': responses.validation.trackVisitMemberIdNumber,
+		'any.required': responses.validation.trackVisitMemberIdRequired,
+	}),
+	sectionId: Joi.number().integer().required().messages({
+		'number.base': responses.validation.trackVisitSectionIdNumber,
+		'any.required': responses.validation.trackVisitSectionIdRequired,
+	}),
+})
+
+export const requestRenewSubscription = Joi.object({
+	memberId: Joi.number().integer().required().messages({
+		'number.base': responses.validation.renewSubscriptionMemberIdNumber,
+		'any.required': responses.validation.renewSubscriptionMemberIdRequired,
+	}),
+	sectionId: Joi.number().integer().required().messages({
+		'number.base': responses.validation.renewSubscriptionSectionIdNumber,
+		'any.required': responses.validation.renewSubscriptionSectionIdRequired,
+	}),
+	subscriptionId: Joi.number().integer().required().messages({
+		'number.base': responses.validation.renewSubscriptionSubscriptionIdNumber,
+		'any.required':
+			responses.validation.renewSubscriptionSubscriptionIdRequired,
 	}),
 })

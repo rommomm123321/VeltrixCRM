@@ -20,6 +20,14 @@ const Member = sequelize.define(
 			type: DataTypes.ENUM('male', 'female', 'other'),
 			allowNull: false,
 		},
+		phone: {
+			type: DataTypes.STRING,
+			allowNull: true,
+		},
+		email: {
+			type: DataTypes.STRING,
+			allowNull: true,
+		},
 	},
 	{
 		tableName: 'Members',

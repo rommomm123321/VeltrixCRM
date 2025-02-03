@@ -1,5 +1,7 @@
 import { sectionService } from '../services/index.js'
 import { responseError, responseSuccess } from '../utils/responseHelper.js'
+import { responses } from '../utils/responses.js'
+import { requestSection } from '../validation/index.js'
 
 const getAllSectionsByUser = async (req, res) => {
 	const { id: userId } = req.user
@@ -29,7 +31,7 @@ const createSection = async (req, res) => {
 	const { id: userId } = req.user
 	const { hallIds = [], ...sectionData } = req.body
 	try {
-		// await requestCreateSection.validateAsync(req.body)
+		await requestSection.validateAsync(req.body)
 		const newSection = await sectionService.createSection(
 			{
 				...sectionData,
@@ -47,7 +49,7 @@ const updateSection = async (req, res) => {
 	const { id: userId } = req.user
 	const { hallIds = [], ...sectionData } = req.body
 	try {
-		// await requestUpdateSection.validateAsync(req.body)
+		await requestSection.validateAsync(req.body)
 		const updatedSection = await sectionService.updateSection(
 			req.params.id,
 			sectionData,
@@ -65,7 +67,9 @@ const deleteSection = async (req, res) => {
 		const ids = req.body.id || req.params.id
 
 		if (!ids) {
-			return responseError(res, 400, { error: 'No IDs provided for deletion' })
+			return responseError(res, 400, {
+				error: responses.error.noIdsProvidedForDeletion,
+			})
 		}
 
 		await sectionService.deleteSection(ids)

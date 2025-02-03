@@ -1,6 +1,7 @@
 import { memberService } from '../services/index.js'
-import { requestCreateHall, requestUpdateHall } from '../validation/index.js'
 import { responseSuccess, responseError } from '../utils/responseHelper.js'
+import { responses } from '../utils/responses.js'
+import { requestMember } from '../validation/index.js'
 
 const getAllMembersByUser = async (req, res) => {
 	const { id: userId } = req.user
@@ -28,7 +29,7 @@ const getMemberById = async (req, res) => {
 
 const createMember = async (req, res) => {
 	try {
-		// await requestCreateHall.validateAsync(req.body)
+		await requestMember.validateAsync(req.body)
 		const newMember = await memberService.createMember({
 			...req.body,
 			userId: req.user.id,
@@ -41,7 +42,7 @@ const createMember = async (req, res) => {
 
 const updateMember = async (req, res) => {
 	try {
-		// await requestUpdateHall.validateAsync(req.body)
+		await requestMember.validateAsync(req.body)
 		const updatedMember = await memberService.updateMember(
 			req.params.id,
 			req.body
@@ -57,7 +58,9 @@ const deleteMember = async (req, res) => {
 		const ids = req.body.id || req.params.id
 
 		if (!ids) {
-			return responseError(res, 400, { error: 'No IDs provided for deletion' })
+			return responseError(res, 400, {
+				error: responses.error.noIdsProvidedForDeletion,
+			})
 		}
 
 		await memberService.deleteMember(ids)
