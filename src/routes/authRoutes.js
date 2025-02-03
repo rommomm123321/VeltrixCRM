@@ -72,7 +72,7 @@ const router = express.Router()
  *         description: User not found.
  */
 
-router.post('/request-code', authController.requestCode)
+router.post('/auth/request-code', authController.requestCode)
 /**
  * @swagger
  * /api/v1/auth/verify:
@@ -106,7 +106,7 @@ router.post('/request-code', authController.requestCode)
  *         description: User not found.
  */
 
-router.post('/verify', authController.verify)
+router.post('/auth/verify', authController.verify)
 
 /**
  * @swagger

@@ -80,6 +80,6 @@ const upload = multer({ storage: multer.memoryStorage() })
  *       400:
  *         $ref: '#/components/responses/UploadError'
  */
-router.post('/upload', upload.single('image'), imageController.upload)
+router.post('/images/upload', upload.single('image'), imageController.upload)
 
 export default router

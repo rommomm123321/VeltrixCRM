@@ -4,6 +4,6 @@ import { authenticate } from '../middlewares/authMiddleware.js'
 
 const router = express.Router()
 
-router.get('/revenue', authenticate, statisticsController.getRevenue)
+router.get('/statistics/revenue', authenticate, statisticsController.getRevenue)
 
 export default router
