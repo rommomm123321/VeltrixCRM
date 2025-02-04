@@ -23,6 +23,7 @@ export const responses = {
 		userNotFound: 'Користувача з такою електронною поштою не знайдено.',
 		userExists: 'Користувач з такою електронною поштою вже існує.',
 		hallNotFound: 'Зал не знайдено.',
+		hallNameUnique: 'Назва залу повинна бути унікальною',
 		hallNotAuthorized: 'У вас немає прав для редагування цього залу.',
 		internalError: 'Виникла помилка на сервері. Спробуйте ще раз.',
 		errorImageNotProvided: 'Зображення не надано',
