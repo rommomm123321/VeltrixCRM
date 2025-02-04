@@ -4,9 +4,22 @@ import { requestHall } from '../validation/index.js'
 
 const getAllHallsByUser = async (req, res) => {
 	const { id: userId } = req.user
-	const { filters = {}, sort = ['createdAt', 'ASC'] } = req.query
+	const {
+		filters = {},
+		sort = ['createdAt', 'ASC'],
+		limit = 10,
+		offset = 0,
+		...rest
+	} = req.query
+	console.log('req.query :>> ', req.query)
 	try {
-		const halls = await hallService.getAllHallsByUser(userId, filters, sort)
+		const halls = await hallService.getAllHallsByUser(
+			userId,
+			{ ...filters, ...rest },
+			sort,
+			limit,
+			offset
+		)
 		responseSuccess(res, 200, halls)
 	} catch (error) {
 		responseError(res, 500, { error: error.message })

@@ -1,17 +1,27 @@
+import { Op } from 'sequelize'
 import { Hall } from '../models/index.js'
 import { responses } from '../utils/responses.js'
 
 const findAllByUser = async (
 	userId,
 	filters = {},
-	sort = ['createdAt', 'ASC']
+	sort = ['createdAt', 'ASC'],
+	limit = 10,
+	offset = 0
 ) => {
-	return await Hall.findAll({
-		where: {
-			...filters,
-			userId,
-		},
+	const cleanedFilters = Object.fromEntries(
+		Object.entries(filters).filter(([key, value]) => value && value !== '')
+	)
+
+	const where = { ...cleanedFilters, userId }
+	if (filters.name) {
+		where.name = { [Op.iLike]: `%${filters.name}%` }
+	}
+	return await Hall.findAndCountAll({
+		where,
 		order: [sort],
+		limit,
+		offset,
 	})
 }
 

@@ -4,9 +4,17 @@ import { responses } from '../utils/responses.js'
 const getAllHallsByUser = async (
 	userId,
 	filters = {},
-	sort = ['createdAt', 'ASC']
+	sort = ['createdAt', 'ASC'],
+	limit = 10,
+	offset = 0
 ) => {
-	return await hallRepository.findAllByUser(userId, filters, sort)
+	return await hallRepository.findAllByUser(
+		userId,
+		filters,
+		sort,
+		limit,
+		offset
+	)
 }
 
 const getHallById = async id => {
