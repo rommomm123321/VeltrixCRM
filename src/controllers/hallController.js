@@ -1,5 +1,6 @@
 import { hallService } from '../services/index.js'
 import { responseSuccess, responseError } from '../utils/responseHelper.js'
+import { responses } from '../utils/responses.js'
 import { requestHall } from '../validation/index.js'
 
 const getAllHallsByUser = async (req, res) => {
@@ -11,7 +12,6 @@ const getAllHallsByUser = async (req, res) => {
 		offset = 0,
 		...rest
 	} = req.query
-	console.log('req.query :>> ', req.query)
 	try {
 		const halls = await hallService.getAllHallsByUser(
 			userId,
@@ -54,7 +54,13 @@ const updateHall = async (req, res) => {
 		const updatedHall = await hallService.updateHall(req.params.id, req.body)
 		responseSuccess(res, 200, updatedHall)
 	} catch (error) {
-		responseError(res, 500, { error: error.message })
+		if (error.name === 'SequelizeUniqueConstraintError') {
+			responseError(res, 400, { error: responses.error.hallNameUnique })
+		} else if (error.isJoi) {
+			responseError(res, 400, { error: error.details[0].message })
+		} else {
+			responseError(res, 500, { error: error.message })
+		}
 	}
 }
 

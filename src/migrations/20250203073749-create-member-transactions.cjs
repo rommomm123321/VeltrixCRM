@@ -61,6 +61,10 @@ module.exports = {
 				allowNull: false,
 			},
 		})
+		await queryInterface.changeColumn('MemberTransactions', 'amount', {
+			type: Sequelize.DECIMAL(10, 2),
+			allowNull: false,
+		})
 	},
 
 	async down(queryInterface, Sequelize) {

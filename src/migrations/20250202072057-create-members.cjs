@@ -34,6 +34,34 @@ module.exports = {
 				},
 				onDelete: 'CASCADE',
 			},
+			hallId: {
+				type: Sequelize.INTEGER,
+				allowNull: false,
+				references: {
+					model: 'Halls',
+					key: 'id',
+				},
+				onUpdate: 'CASCADE',
+				onDelete: 'SET NULL',
+			},
+			phone: {
+				type: Sequelize.STRING,
+				allowNull: true,
+				unique: true,
+			},
+			email: {
+				type: Sequelize.STRING,
+				allowNull: true,
+				validate: {
+					isEmail: true,
+				},
+				unique: true,
+			},
+			registrationDate: {
+				type: Sequelize.DATE,
+				allowNull: false,
+				defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+			},
 			createdAt: {
 				type: Sequelize.DATE,
 				allowNull: false,
@@ -41,6 +69,10 @@ module.exports = {
 			updatedAt: {
 				type: Sequelize.DATE,
 				allowNull: false,
+			},
+			deletedAt: {
+				type: Sequelize.DATE,
+				allowNull: true,
 			},
 		})
 	},

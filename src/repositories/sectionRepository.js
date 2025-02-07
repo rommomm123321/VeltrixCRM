@@ -1,18 +1,45 @@
-import { Section } from '../models/index.js'
+import { Hall, HallSection, Section } from '../models/index.js'
 import { hallRepository } from './index.js'
 import { responses } from '../utils/responses.js'
+import { Op } from 'sequelize'
 
 const findAllByUser = async (
 	userId,
 	filters = {},
-	sort = ['createdAt', 'ASC']
+	sort = ['createdAt', 'ASC'],
+	limit = 10,
+	offset = 0
 ) => {
-	return await Section.findAll({
-		where: {
-			...filters,
-			userId,
+	if (filters.hallId && typeof filters.hallId === 'string') {
+		filters.hallId = filters.hallId.split(',').map(id => parseInt(id, 10))
+	}
+	const cleanedFilters = Object.fromEntries(
+		Object.entries(filters).filter(([key, value]) => value && value !== '')
+	)
+
+	const where = { userId }
+	if (filters.name) {
+		where.name = { [Op.iLike]: `%${filters.name}%` }
+	}
+	if (filters.id) {
+		where.id = filters.id
+	}
+	const include = [
+		{
+			model: Hall,
+			through: {
+				attributes: [],
+			},
+			where: filters.hallId ? { id: { [Op.in]: filters.hallId } } : undefined,
+			required: !!filters.hallId,
 		},
-		order: [sort],
+	]
+	return await Section.findAndCountAll({
+		where,
+		order: [sort, ['id', 'DESC']],
+		limit,
+		offset,
+		include,
 	})
 }
 
@@ -28,13 +55,13 @@ const create = async (sectionData, hallIds = []) => {
 	const halls = await hallRepository.findAllByUser(sectionData?.userId, {
 		id: hallIds,
 	})
-	if (halls.length !== hallIds.length) {
+
+	if (halls.count !== hallIds.length) {
 		throw new Error(responses.error.sectionNotBelongHall)
 	}
 	const newSection = await Section.create(sectionData)
-
 	if (hallIds.length > 0) {
-		const hallIdsToAttach = halls.map(hall => hall.id)
+		const hallIdsToAttach = halls.rows.map(hall => hall.id)
 		await newSection.addHalls(hallIdsToAttach)
 	}
 
@@ -45,7 +72,7 @@ const update = async (id, sectionData, hallIds = [], userId) => {
 	const halls = await hallRepository.findAllByUser(userId, {
 		id: hallIds,
 	})
-	if (halls.length !== hallIds.length) {
+	if (halls.count !== hallIds.length) {
 		throw new Error(responses.error.sectionNotBelongHall)
 	}
 	const section = await findById(id)
@@ -53,7 +80,7 @@ const update = async (id, sectionData, hallIds = [], userId) => {
 		throw new Error(responses.error.sectionNotFound)
 	}
 	if (hallIds.length > 0) {
-		const hallIdsToAttach = halls.map(hall => hall.id)
+		const hallIdsToAttach = halls.rows.map(hall => hall.id)
 		await section.setHalls(hallIdsToAttach)
 	} else {
 		await section.setHalls([])

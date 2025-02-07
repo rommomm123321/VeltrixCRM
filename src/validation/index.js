@@ -85,8 +85,9 @@ export const requestMember = Joi.object({
 		'any.required': responses.validation.memberGenderRequired,
 		'string.valid': responses.validation.memberGenderValid,
 	}),
-	phone: Joi.string().max(200).required(),
-	email: Joi.string().max(200).required(),
+	phone: Joi.string().max(200).allow(null).optional(),
+	email: Joi.string().max(200).allow(null).optional(),
+	registrationDate: Joi.date().allow(null).optional(),
 	hallId: Joi.number().integer().required().messages({
 		'number.base': responses.validation.memberHallIdNumber,
 		'any.required': responses.validation.memberHallIdRequired,

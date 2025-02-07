@@ -3,6 +3,7 @@ import {
 	Subscription,
 	SectionSubscription,
 	MemberSubscriptions,
+	Section,
 } from '../models/index.js'
 import { responses } from '../utils/responses.js'
 import { memberTransactionRepository, sectionRepository } from './index.js'
@@ -10,14 +11,41 @@ import { memberTransactionRepository, sectionRepository } from './index.js'
 const findAllByUser = async (
 	userId,
 	filters = {},
-	sort = ['createdAt', 'ASC']
+	sort = ['createdAt', 'ASC'],
+	limit = 10,
+	offset = 0
 ) => {
-	return await Subscription.findAll({
-		where: {
-			...filters,
-			userId,
+	if (filters.sectionId && typeof filters.sectionId === 'string') {
+		filters.sectionId = filters.sectionId.split(',').map(id => parseInt(id, 10))
+	}
+	const cleanedFilters = Object.fromEntries(
+		Object.entries(filters).filter(([key, value]) => value && value !== '')
+	)
+
+	const where = { userId }
+
+	if (filters.name) {
+		where.name = { [Op.iLike]: `%${filters.name}%` }
+	}
+
+	const include = [
+		{
+			model: Section,
+			through: {
+				attributes: [],
+			},
+			where: filters.sectionId
+				? { id: { [Op.in]: filters.sectionId } }
+				: undefined,
+			required: !!filters.sectionId,
 		},
-		order: [sort],
+	]
+	return await Subscription.findAndCountAll({
+		where,
+		order: [sort, ['id', 'DESC']],
+		limit,
+		offset,
+		include,
 	})
 }
 
@@ -36,12 +64,12 @@ const create = async (subscriptionData, sectionIds = []) => {
 			id: sectionIds,
 		}
 	)
-	if (sections.length !== sectionIds.length) {
+	if (sections.count !== sectionIds.length) {
 		throw new Error(responses.error.subscriptionNotFound)
 	}
 	const newSubscription = await Subscription.create(subscriptionData)
 	if (sectionIds.length > 0) {
-		const sectionIdsToAttach = sections.map(section => section.id)
+		const sectionIdsToAttach = sections.rows.map(section => section.id)
 		await newSubscription.addSections(sectionIdsToAttach)
 	}
 
@@ -52,8 +80,7 @@ const update = async (id, subscriptionData, sectionIds = [], userId) => {
 	const sections = await sectionRepository.findAllByUser(userId, {
 		id: sectionIds,
 	})
-
-	if (sections.length !== sectionIds.length) {
+	if (sections.rows.length !== sectionIds.length) {
 		throw new Error(responses.error.subscriptionNotFound)
 	}
 	const subscription = await findById(id)
@@ -61,7 +88,7 @@ const update = async (id, subscriptionData, sectionIds = [], userId) => {
 		throw new Error(responses.error.subscriptionNotFound)
 	}
 	if (sectionIds.length > 0) {
-		const sectionIdsToAttach = sections.map(section => section.id)
+		const sectionIdsToAttach = sections.rows.map(section => section.id)
 		await subscription.setSections(sectionIdsToAttach)
 	} else {
 		await subscription.setSections([])
@@ -152,6 +179,7 @@ const renewSubscription = async (
 		newExpirationDate.setDate(newExpirationDate.getDate() + 30)
 
 		currentSubscription.subscriptionId = subscriptionId
+		currentSubscription.purchaseDate = new Date()
 		currentSubscription.expirationDate = newExpirationDate
 		currentSubscription.usedSessions = 0
 		currentSubscription.status = 'active'
@@ -180,6 +208,7 @@ const renewSubscription = async (
 			sectionId,
 			subscriptionId,
 			priceAtPurchase: subscription.price,
+			purchaseDate: new Date(),
 			expirationDate: newExpirationDate,
 			usedSessions: 0,
 			status: 'active',

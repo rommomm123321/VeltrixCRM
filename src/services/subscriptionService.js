@@ -3,9 +3,17 @@ import { subscriptionRepository } from '../repositories/index.js'
 export const getAllSubscriptionsByUser = async (
 	userId,
 	filters = {},
-	sort = ['createdAt', 'ASC']
+	sort = ['createdAt', 'ASC'],
+	limit = 10,
+	offset = 0
 ) => {
-	return await subscriptionRepository.findAllByUser(userId, filters, sort)
+	return await subscriptionRepository.findAllByUser(
+		userId,
+		filters,
+		sort,
+		limit,
+		offset
+	)
 }
 
 export const getSubscriptionById = async id => {

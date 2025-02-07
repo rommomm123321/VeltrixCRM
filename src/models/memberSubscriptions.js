@@ -79,6 +79,9 @@ const MemberSubscriptions = sequelize.define(
 	{
 		tableName: 'MemberSubscriptions',
 		timestamps: true,
+		defaultScope: {
+			order: [['subscriptionId', 'ASC']],
+		},
 	}
 )
 

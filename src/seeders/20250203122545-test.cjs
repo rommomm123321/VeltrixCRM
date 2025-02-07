@@ -7,7 +7,7 @@ module.exports = {
 			'Users',
 			[
 				{
-					email: 'admin@newdomain.com',
+					email: 'admin@admin.com',
 					verificationCode: '795f982b',
 					verificationCodeExpires: new Date(
 						new Date().setHours(new Date().getHours() + 1)
@@ -102,6 +102,8 @@ module.exports = {
 				phone: `38000000000${i}`,
 				email: `member${i}@example.com`,
 				userId,
+				hallId: insertedHalls[i % 100].id, // Link to the hall
+				registrationDate: new Date(),
 				createdAt: new Date(),
 				updatedAt: new Date(),
 			})

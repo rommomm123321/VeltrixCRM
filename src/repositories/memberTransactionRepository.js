@@ -288,10 +288,10 @@ const getRevenue = async filter => {
 
 	const whereCondition = { userId }
 
-	if (hallId) whereCondition.hallId = hallId
-	if (sectionId) whereCondition.sectionId = sectionId
-	if (subscriptionId) whereCondition.subscriptionId = subscriptionId
-	if (memberId) whereCondition.memberId = memberId
+	if (hallId) whereCondition['Hall.id'] = hallId
+	if (sectionId) whereCondition['Section.id'] = sectionId
+	if (subscriptionId) whereCondition['Subscription.id'] = subscriptionId
+	if (memberId) whereCondition['Member.id'] = memberId
 
 	if (startDate && endDate) {
 		whereCondition.transactionDate = {
@@ -301,6 +301,203 @@ const getRevenue = async filter => {
 
 	const transactions = await MemberTransaction.findAll({
 		where: whereCondition,
+		include: [
+			{ model: Hall, attributes: ['id', 'name'], as: 'Hall' },
+			{
+				model: Section,
+				attributes: ['id', 'name', 'description'],
+				as: 'Section',
+			},
+			{
+				model: Subscription,
+				attributes: ['id', 'name', 'numberOfSessions', 'price'],
+				as: 'Subscription',
+			},
+			{
+				model: Member,
+				attributes: [
+					'id',
+					'firstName',
+					'lastName',
+					'age',
+					'gender',
+					'phone',
+					'email',
+				],
+				as: 'Member',
+			},
+		],
+	})
+
+	const totalRevenue = transactions.reduce(
+		(sum, t) => sum + parseFloat(t.amount),
+		0
+	)
+
+	const revenueByHalls = await MemberTransaction.findAll({
+		attributes: [
+			[sequelize.col('Hall.id'), 'hallId'],
+			[sequelize.fn('SUM', sequelize.col('amount')), 'totalRevenue'],
+			[sequelize.col('Hall.name'), 'hallName'],
+			[sequelize.col('MemberTransaction.transactionDate'), 'transactionDate'],
+		],
+		where: whereCondition,
+		group: ['Hall.id', 'MemberTransaction.transactionDate'], // Added transactionDate here
+		include: [{ model: Hall, attributes: [], as: 'Hall' }],
+	})
+
+	const revenueBySections = await MemberTransaction.findAll({
+		attributes: [
+			[sequelize.col('Hall.id'), 'hallId'],
+			[sequelize.col('Section.id'), 'sectionId'],
+			[sequelize.fn('SUM', sequelize.col('amount')), 'totalRevenue'],
+			[sequelize.col('Hall.name'), 'hallName'],
+			[sequelize.col('Section.name'), 'sectionName'],
+			[sequelize.col('Section.description'), 'sectionDescription'],
+			[sequelize.col('MemberTransaction.transactionDate'), 'transactionDate'],
+		],
+		where: whereCondition,
+		group: ['Hall.id', 'Section.id', 'MemberTransaction.transactionDate'], // Added transactionDate here
+		include: [
+			{ model: Hall, attributes: [], as: 'Hall' },
+			{ model: Section, attributes: [], as: 'Section' },
+		],
+	})
+
+	const revenueBySubscriptions = await MemberTransaction.findAll({
+		attributes: [
+			[sequelize.col('Hall.id'), 'hallId'],
+			[sequelize.col('Section.id'), 'sectionId'],
+			[sequelize.col('Subscription.id'), 'subscriptionId'],
+			[sequelize.fn('SUM', sequelize.col('amount')), 'totalRevenue'],
+			[sequelize.col('Hall.name'), 'hallName'],
+			[sequelize.col('Section.name'), 'sectionName'],
+			[sequelize.col('Subscription.name'), 'subscriptionName'],
+			[sequelize.col('Subscription.numberOfSessions'), 'numberOfSessions'],
+			[sequelize.col('Subscription.price'), 'price'],
+			[sequelize.col('MemberTransaction.transactionDate'), 'transactionDate'],
+		],
+		where: whereCondition,
+		group: [
+			'Hall.id',
+			'Section.id',
+			'Subscription.id',
+			'MemberTransaction.transactionDate',
+		],
+		include: [
+			{ model: Hall, attributes: [], as: 'Hall' },
+			{ model: Section, attributes: [], as: 'Section' },
+			{ model: Subscription, attributes: [], as: 'Subscription' },
+		],
+	})
+
+	const spendingByMembers = await MemberTransaction.findAll({
+		attributes: [
+			[sequelize.col('Hall.id'), 'hallId'],
+			[sequelize.col('Section.id'), 'sectionId'],
+			[sequelize.col('Subscription.id'), 'subscriptionId'],
+			[sequelize.col('Member.id'), 'memberId'],
+			[sequelize.fn('SUM', sequelize.col('amount')), 'totalSpent'],
+			[sequelize.col('Hall.name'), 'hallName'],
+			[sequelize.col('Section.name'), 'sectionName'],
+			[sequelize.col('Subscription.name'), 'subscriptionName'],
+			[sequelize.col('Subscription.numberOfSessions'), 'numberOfSessions'],
+			[sequelize.col('Subscription.price'), 'price'],
+			[sequelize.col('Member.firstName'), 'firstName'],
+			[sequelize.col('Member.lastName'), 'lastName'],
+			[sequelize.col('Member.age'), 'age'],
+			[sequelize.col('Member.gender'), 'gender'],
+			[sequelize.col('Member.phone'), 'phone'],
+			[sequelize.col('Member.email'), 'email'],
+			[sequelize.col('MemberTransaction.transactionDate'), 'transactionDate'],
+		],
+		where: whereCondition,
+		group: [
+			'Hall.id',
+			'Section.id',
+			'Subscription.id',
+			'Member.id',
+			'MemberTransaction.transactionDate',
+		],
+		include: [
+			{ model: Hall, attributes: [], as: 'Hall' },
+			{ model: Section, attributes: [], as: 'Section' },
+			{ model: Subscription, attributes: [], as: 'Subscription' },
+			{ model: Member, attributes: [], as: 'Member' },
+		],
+	})
+
+	return {
+		totalRevenue,
+		revenueByHalls: revenueByHalls.map(hall => ({
+			hallId: hall.hallId,
+			name: hall.dataValues.hallName,
+			totalRevenue: parseFloat(hall.dataValues.totalRevenue) || 0,
+			transactionDate: hall.dataValues.transactionDate,
+		})),
+		revenueBySections: revenueBySections.map(section => ({
+			hallId: section.hallId,
+			sectionId: section.sectionId,
+			hallName: section.dataValues.hallName,
+			sectionName: section.dataValues.sectionName,
+			description: section.dataValues.sectionDescription,
+			totalRevenue: parseFloat(section.dataValues.totalRevenue) || 0,
+			transactionDate: section.dataValues.transactionDate,
+		})),
+		revenueBySubscriptions: revenueBySubscriptions.map(subscription => ({
+			hallId: subscription.hallId,
+			sectionId: subscription.sectionId,
+			subscriptionId: subscription.subscriptionId,
+			hallName: subscription.dataValues.hallName,
+			sectionName: subscription.dataValues.sectionName,
+			subscriptionName: subscription.dataValues.subscriptionName,
+			numberOfSessions: subscription.dataValues.numberOfSessions,
+			price: parseFloat(subscription.dataValues.price) || 0,
+			totalRevenue: parseFloat(subscription.dataValues.totalRevenue) || 0,
+			transactionDate: subscription.dataValues.transactionDate,
+		})),
+		spendingByMembers: spendingByMembers.map(member => ({
+			hallId: member.hallId,
+			sectionId: member.sectionId,
+			subscriptionId: member.subscriptionId,
+			memberId: member.memberId,
+			hallName: member.dataValues.hallName,
+			sectionName: member.dataValues.sectionName,
+			subscriptionName: member.dataValues.subscriptionName,
+			numberOfSessions: member.dataValues.numberOfSessions,
+			price: parseFloat(member.dataValues.price) || 0,
+			firstName: member.dataValues.firstName,
+			lastName: member.dataValues.lastName,
+			age: member.dataValues.age,
+			gender: member.dataValues.gender,
+			phone: member.dataValues.phone,
+			email: member.dataValues.email,
+			totalSpent: parseFloat(member.dataValues.totalSpent) || 0,
+			transactionDate: member.dataValues.transactionDate,
+		})),
+	}
+}
+
+const findAllStatistic = async (filter, page = 1, limit = 10) => {
+	const whereCondition = {}
+
+	if (filter.userId) whereCondition.userId = filter.userId
+	if (filter.memberId) whereCondition.memberId = filter.memberId
+	if (filter.hallId) whereCondition.hallId = filter.hallId
+	if (filter.sectionId) whereCondition.sectionId = filter.sectionId
+	if (filter.subscriptionId)
+		whereCondition.subscriptionId = filter.subscriptionId
+
+	if (filter.startDate && filter.endDate) {
+		whereCondition.transactionDate = {
+			[Op.between]: [new Date(filter.startDate), new Date(filter.endDate)],
+		}
+	}
+	const offset = (page - 1) * limit
+
+	return await MemberTransaction.findAndCountAll({
+		where: whereCondition,
+		order: [['transactionDate', 'DESC']],
 		include: [
 			{ model: Hall, attributes: ['id', 'name'] },
 			{ model: Section, attributes: ['id', 'name', 'description'] },
@@ -321,155 +518,36 @@ const getRevenue = async filter => {
 				],
 			},
 		],
+		limit: limit,
+		offset: offset,
 	})
+}
 
-	const totalRevenue = transactions.reduce(
-		(sum, t) => sum + parseFloat(t.amount),
-		0
-	)
+const getTotalRevenue = async (filter = {}) => {
+	const whereCondition = {}
 
-	const revenueByHalls = await MemberTransaction.findAll({
-		attributes: [
-			'hallId',
-			[sequelize.fn('SUM', sequelize.col('amount')), 'totalRevenue'],
-			[sequelize.col('Hall.name'), 'hallName'],
-		],
-		where: whereCondition,
-		group: ['hallId', 'Hall.id'],
-		include: [{ model: Hall, attributes: [] }],
-	})
+	if (filter.userId) whereCondition.userId = filter.userId
+	if (filter.memberId) whereCondition.memberId = filter.memberId
+	if (filter.hallId) whereCondition.hallId = filter.hallId
+	if (filter.sectionId) whereCondition.sectionId = filter.sectionId
+	if (filter.subscriptionId)
+		whereCondition.subscriptionId = filter.subscriptionId
 
-	const revenueBySections = await MemberTransaction.findAll({
-		attributes: [
-			'hallId',
-			'sectionId',
-			[sequelize.fn('SUM', sequelize.col('amount')), 'totalRevenue'],
-			[sequelize.col('Hall.name'), 'hallName'],
-			[sequelize.col('Section.name'), 'sectionName'],
-			[sequelize.col('Section.description'), 'sectionDescription'],
-		],
-		where: whereCondition,
-		group: ['hallId', 'sectionId', 'Hall.id', 'Section.id'],
-		include: [
-			{ model: Hall, attributes: [] },
-			{ model: Section, attributes: [] },
-		],
-	})
-
-	const revenueBySubscriptions = await MemberTransaction.findAll({
-		attributes: [
-			'hallId',
-			'sectionId',
-			'subscriptionId',
-			[sequelize.fn('SUM', sequelize.col('amount')), 'totalRevenue'],
-			[sequelize.col('Hall.name'), 'hallName'],
-			[sequelize.col('Section.name'), 'sectionName'],
-			[sequelize.col('Subscription.name'), 'subscriptionName'],
-			[sequelize.col('Subscription.numberOfSessions'), 'numberOfSessions'],
-			[sequelize.col('Subscription.price'), 'price'],
-		],
-		where: whereCondition,
-		group: [
-			'hallId',
-			'sectionId',
-			'subscriptionId',
-			'Hall.id',
-			'Section.id',
-			'Subscription.id',
-		],
-		include: [
-			{ model: Hall, attributes: [] },
-			{ model: Section, attributes: [] },
-			{ model: Subscription, attributes: [] },
-		],
-	})
-
-	const spendingByMembers = await MemberTransaction.findAll({
-		attributes: [
-			'hallId',
-			'sectionId',
-			'subscriptionId',
-			'memberId',
-			[sequelize.fn('SUM', sequelize.col('amount')), 'totalSpent'],
-			[sequelize.col('Hall.name'), 'hallName'],
-			[sequelize.col('Section.name'), 'sectionName'],
-			[sequelize.col('Subscription.name'), 'subscriptionName'],
-			[sequelize.col('Subscription.numberOfSessions'), 'numberOfSessions'],
-			[sequelize.col('Subscription.price'), 'price'],
-			[sequelize.col('Member.firstName'), 'firstName'],
-			[sequelize.col('Member.lastName'), 'lastName'],
-			[sequelize.col('Member.age'), 'age'],
-			[sequelize.col('Member.gender'), 'gender'],
-			[sequelize.col('Member.phone'), 'phone'],
-			[sequelize.col('Member.email'), 'email'],
-		],
-		where: whereCondition,
-		group: [
-			'hallId',
-			'sectionId',
-			'subscriptionId',
-			'memberId',
-			'Hall.id',
-			'Section.id',
-			'Subscription.id',
-			'Member.id',
-		],
-		include: [
-			{ model: Hall, attributes: [] },
-			{ model: Section, attributes: [] },
-			{ model: Subscription, attributes: [] },
-			{ model: Member, attributes: [] },
-		],
-	})
-
-	return {
-		totalRevenue,
-		revenueByHalls: revenueByHalls.map(hall => ({
-			hallId: hall.hallId,
-			name: hall.dataValues.hallName,
-			totalRevenue: parseFloat(hall.dataValues.totalRevenue) || 0,
-		})),
-		revenueBySections: revenueBySections.map(section => ({
-			hallId: section.hallId,
-			sectionId: section.sectionId,
-			hallName: section.dataValues.hallName,
-			sectionName: section.dataValues.sectionName,
-			description: section.dataValues.sectionDescription,
-			totalRevenue: parseFloat(section.dataValues.totalRevenue) || 0,
-		})),
-		revenueBySubscriptions: revenueBySubscriptions.map(subscription => ({
-			hallId: subscription.hallId,
-			sectionId: subscription.sectionId,
-			subscriptionId: subscription.subscriptionId,
-			hallName: subscription.dataValues.hallName,
-			sectionName: subscription.dataValues.sectionName,
-			subscriptionName: subscription.dataValues.subscriptionName,
-			numberOfSessions: subscription.dataValues.numberOfSessions,
-			price: parseFloat(subscription.dataValues.price) || 0,
-			totalRevenue: parseFloat(subscription.dataValues.totalRevenue) || 0,
-		})),
-		spendingByMembers: spendingByMembers.map(member => ({
-			hallId: member.hallId,
-			sectionId: member.sectionId,
-			subscriptionId: member.subscriptionId,
-			memberId: member.memberId,
-			hallName: member.dataValues.hallName,
-			sectionName: member.dataValues.sectionName,
-			subscriptionName: member.dataValues.subscriptionName,
-			numberOfSessions: member.dataValues.numberOfSessions,
-			price: parseFloat(member.dataValues.price) || 0,
-			firstName: member.dataValues.firstName,
-			lastName: member.dataValues.lastName,
-			age: member.dataValues.age,
-			gender: member.dataValues.gender,
-			phone: member.dataValues.phone,
-			email: member.dataValues.email,
-			totalSpent: parseFloat(member.dataValues.totalSpent) || 0,
-		})),
+	if (filter.startDate && filter.endDate) {
+		whereCondition.transactionDate = {
+			[Op.between]: [new Date(filter.startDate), new Date(filter.endDate)],
+		}
 	}
+
+	const result = await MemberTransaction.sum('amount', {
+		where: whereCondition,
+	})
+	return result || 0
 }
 
 export default {
+	getTotalRevenue,
+	findAllStatistic,
 	getRevenue,
 	addSubscriptionToMember,
 	getRevenueByHall,

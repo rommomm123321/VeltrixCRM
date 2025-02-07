@@ -12,8 +12,16 @@ User.hasMany(Hall, { foreignKey: 'userId' })
 Hall.belongsTo(User, { foreignKey: 'userId' })
 User.hasMany(Section, { foreignKey: 'userId' })
 Section.belongsTo(User, { foreignKey: 'userId' })
-Hall.belongsToMany(Section, { through: HallSection, foreignKey: 'hallId' })
-Section.belongsToMany(Hall, { through: HallSection, foreignKey: 'sectionId' })
+Hall.belongsToMany(Section, {
+	through: HallSection,
+	foreignKey: 'hallId',
+	otherKey: 'sectionId',
+})
+Section.belongsToMany(Hall, {
+	through: HallSection,
+	foreignKey: 'sectionId',
+	otherKey: 'hallId',
+})
 User.hasMany(Subscription, { foreignKey: 'userId' })
 Subscription.belongsTo(User, { foreignKey: 'userId' })
 Section.belongsToMany(Subscription, {
@@ -26,6 +34,8 @@ Subscription.belongsToMany(Section, {
 })
 User.hasMany(Member, { foreignKey: 'userId' })
 Member.belongsTo(User, { foreignKey: 'userId' })
+Hall.hasMany(Member, { foreignKey: 'hallId' })
+Member.belongsTo(Hall, { foreignKey: 'hallId' })
 
 Member.belongsToMany(Section, {
 	through: MemberSubscriptions,

@@ -4,6 +4,15 @@ import { authenticate } from '../middlewares/authMiddleware.js'
 
 const router = express.Router()
 
-router.get('/statistics/revenue', authenticate, statisticsController.getRevenue)
+router.get(
+	'/statistics/revenue',
+	authenticate,
+	statisticsController.getStatistics
+)
+router.get(
+	'/download-statistics-csv',
+	authenticate,
+	statisticsController.getStatisticsCSV
+)
 
 export default router

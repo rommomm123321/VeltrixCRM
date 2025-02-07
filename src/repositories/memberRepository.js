@@ -1,4 +1,4 @@
-import sequelize from '../config/db.js'
+import { Op } from 'sequelize'
 import {
 	Hall,
 	Member,
@@ -13,39 +13,85 @@ import memberTransactionRepository from './memberTransactionRepository.js'
 const findAllByUser = async (
 	userId,
 	filters = {},
-	sort = ['createdAt', 'ASC']
+	sort = ['createdAt', 'ASC'],
+	limit = 10,
+	offset = 0
 ) => {
-	return await Member.findAll({
-		where: {
-			...filters,
-			userId,
-		},
-		order: [sort],
+	if (filters.subscriptionId && typeof filters.subscriptionId === 'string') {
+		filters.subscriptionId = filters.subscriptionId
+			.split(',')
+			.map(id => parseInt(id, 10))
+	}
 
-		include: [
-			{
-				model: MemberSubscriptions,
-				required: false,
-				include: [
-					{
-						model: Hall,
-						required: false,
-					},
-					{
-						model: Section,
-						required: false,
-					},
-					{
-						model: Subscription,
-						required: false,
-					},
-				],
-			},
-			{
-				model: MemberTransaction,
-				required: false,
-			},
+	const cleanedFilters = Object.fromEntries(
+		Object.entries(filters).filter(([key, value]) => value && value !== '')
+	)
+
+	const where = { userId }
+
+	if (filters.firstName) {
+		where.firstName = { [Op.iLike]: `%${filters.firstName}%` }
+	}
+	if (filters.lastName) {
+		where.lastName = { [Op.iLike]: `%${filters.lastName}%` }
+	}
+
+	if (filters.email) {
+		where.email = { [Op.iLike]: `%${filters.email}%` }
+	}
+
+	if (filters.phone) {
+		where.phone = { [Op.iLike]: `%${filters.phone}%` }
+	}
+
+	const include = [
+		{
+			model: MemberSubscriptions,
+			required: false,
+			include: [
+				{
+					model: Hall,
+					required: false,
+				},
+				{
+					model: Section,
+					required: false,
+				},
+				{
+					model: Subscription,
+					where: filters.subscriptionId
+						? { id: { [Op.in]: filters.subscriptionId } }
+						: undefined,
+					required: !!filters.subscriptionId,
+				},
+			],
+		},
+		{
+			model: MemberTransaction,
+			required: false,
+			include: [
+				{
+					model: Subscription,
+					required: false,
+				},
+			],
+		},
+		{
+			model: Hall,
+			required: false,
+		},
+	]
+
+	return await Member.findAndCountAll({
+		where,
+		order: [
+			sort,
+			['id', 'DESC'],
+			[MemberSubscriptions, 'subscriptionId', 'ASC'],
 		],
+		limit,
+		offset,
+		include,
 	})
 }
 
@@ -68,16 +114,36 @@ const create = async memberData => {
 		gender,
 		phone,
 		email,
+		registrationDate,
 	} = memberData
+
+	if (registrationDate) {
+		memberData.registrationDate = new Date(registrationDate)
+	}
+
+	const existingMember = await Member.findOne({
+		where: { phone: memberData.phone },
+	})
+	if (existingMember) {
+		throw new Error(responses.validation.memberPhoneRequired)
+	}
+	const existingMemberWithEmail = await Member.findOne({
+		where: { email: memberData.email },
+	})
+	if (memberData.email && existingMemberWithEmail) {
+		throw new Error(responses.validation.memberEmailRequired)
+	}
 
 	const newMember = await Member.create({
 		userId,
+		hallId,
 		firstName,
 		lastName,
 		age,
 		gender,
 		phone,
 		email,
+		registrationDate,
 	})
 
 	const expirationDate = new Date()
@@ -124,13 +190,32 @@ const update = async (id, memberData) => {
 		throw new Error('Member not found')
 	}
 
+	const existingMember = await Member.findOne({
+		where: { phone: memberData.phone },
+	})
+	if (existingMember && existingMember.id !== id) {
+		throw new Error(responses.validation.memberPhoneRequired)
+	}
+	const existingMemberWithEmail = await Member.findOne({
+		where: { email: memberData.email },
+	})
+	if (
+		memberData.email &&
+		existingMemberWithEmail &&
+		existingMemberWithEmail.id !== id
+	) {
+		throw new Error(responses.validation.memberEmailRequired)
+	}
+
 	await member.update({
+		hallId: memberData.hallId,
 		firstName: memberData.firstName,
 		lastName: memberData.lastName,
 		age: memberData.age,
 		gender: memberData.gender,
 		phone: memberData.phone,
 		email: memberData.email,
+		registrationDate: new Date(memberData.registrationDate),
 	})
 
 	const existingSubscriptions = await MemberSubscriptions.findAll({

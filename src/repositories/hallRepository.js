@@ -19,7 +19,7 @@ const findAllByUser = async (
 	}
 	return await Hall.findAndCountAll({
 		where,
-		order: [sort],
+		order: [sort, ['id', 'DESC']],
 		limit,
 		offset,
 	})
@@ -43,6 +43,7 @@ const create = async hallData => {
 
 const update = async (id, hallData) => {
 	const hall = await findById(id)
+	console.log('hall :>> ', hall)
 	if (!hall) {
 		throw new Error(responses.error.hallNotFound)
 	}

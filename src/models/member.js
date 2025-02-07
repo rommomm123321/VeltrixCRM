@@ -23,15 +23,23 @@ const Member = sequelize.define(
 		phone: {
 			type: DataTypes.STRING,
 			allowNull: true,
+			unique: true,
 		},
 		email: {
 			type: DataTypes.STRING,
 			allowNull: true,
+			unique: true,
+		},
+		registrationDate: {
+			type: DataTypes.DATE,
+			allowNull: false,
 		},
 	},
 	{
+		paranoid: true,
 		tableName: 'Members',
 		timestamps: true,
+		deletedAt: 'deletedAt',
 	}
 )
 

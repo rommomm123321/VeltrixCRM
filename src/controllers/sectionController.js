@@ -5,12 +5,20 @@ import { requestSection } from '../validation/index.js'
 
 const getAllSectionsByUser = async (req, res) => {
 	const { id: userId } = req.user
-	const { filters = {}, sort = ['createdAt', 'ASC'] } = req.query
+	const {
+		filters = {},
+		sort = ['createdAt', 'ASC'],
+		limit = 10,
+		offset = 0,
+		...rest
+	} = req.query
 	try {
 		const sections = await sectionService.getAllSectionsByUser(
 			userId,
-			filters,
-			sort
+			{ ...filters, ...rest },
+			sort,
+			limit,
+			offset
 		)
 		responseSuccess(res, 200, sections)
 	} catch (error) {
@@ -41,7 +49,13 @@ const createSection = async (req, res) => {
 		)
 		responseSuccess(res, 201, newSection)
 	} catch (error) {
-		responseError(res, 500, { error: error.message })
+		if (error.name === 'SequelizeUniqueConstraintError') {
+			responseError(res, 400, { error: responses.error.sectionNameUnique })
+		} else if (error.isJoi) {
+			responseError(res, 400, { error: error.details[0].message })
+		} else {
+			responseError(res, 500, { error: error.message })
+		}
 	}
 }
 
@@ -58,7 +72,13 @@ const updateSection = async (req, res) => {
 		)
 		responseSuccess(res, 200, updatedSection)
 	} catch (error) {
-		responseError(res, 500, { error: error.message })
+		if (error.name === 'SequelizeUniqueConstraintError') {
+			responseError(res, 400, { error: responses.error.sectionNameUnique })
+		} else if (error.isJoi) {
+			responseError(res, 400, { error: error.details[0].message })
+		} else {
+			responseError(res, 500, { error: error.message })
+		}
 	}
 }
 

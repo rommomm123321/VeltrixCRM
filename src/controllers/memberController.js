@@ -5,12 +5,20 @@ import { requestMember } from '../validation/index.js'
 
 const getAllMembersByUser = async (req, res) => {
 	const { id: userId } = req.user
-	const { filters = {}, sort = ['createdAt', 'ASC'] } = req.query
+	const {
+		filters = {},
+		sort = ['createdAt', 'ASC'],
+		limit = 10,
+		offset = 0,
+		...rest
+	} = req.query
 	try {
 		const members = await memberService.getAllMembersByUser(
 			userId,
-			filters,
-			sort
+			{ ...filters, ...rest },
+			sort,
+			limit,
+			offset
 		)
 		responseSuccess(res, 200, members)
 	} catch (error) {

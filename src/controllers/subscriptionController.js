@@ -9,12 +9,20 @@ import {
 
 const getAllSubscriptionsByUser = async (req, res) => {
 	const { id: userId } = req.user
-	const { filters = {}, sort = ['createdAt', 'ASC'] } = req.query
+	const {
+		filters = {},
+		sort = ['createdAt', 'ASC'],
+		limit = 10,
+		offset = 0,
+		...rest
+	} = req.query
 	try {
 		const subscriptions = await subscriptionService.getAllSubscriptionsByUser(
 			userId,
-			filters,
-			sort
+			{ ...filters, ...rest },
+			sort,
+			limit,
+			offset
 		)
 		responseSuccess(res, 200, subscriptions)
 	} catch (error) {
@@ -47,7 +55,13 @@ const createSubscription = async (req, res) => {
 		)
 		responseSuccess(res, 201, newSubscription)
 	} catch (error) {
-		responseError(res, 500, { error: error.message })
+		if (error.name === 'SequelizeUniqueConstraintError') {
+			responseError(res, 400, { error: responses.error.subscriptionNameUnique })
+		} else if (error.isJoi) {
+			responseError(res, 400, { error: error.details[0].message })
+		} else {
+			responseError(res, 500, { error: error.message })
+		}
 	}
 }
 
@@ -64,7 +78,13 @@ const updateSubscription = async (req, res) => {
 		)
 		responseSuccess(res, 200, updatedSubscription)
 	} catch (error) {
-		responseError(res, 500, { error: error.message })
+		if (error.name === 'SequelizeUniqueConstraintError') {
+			responseError(res, 400, { error: responses.error.subscriptionNameUnique })
+		} else if (error.isJoi) {
+			responseError(res, 400, { error: error.details[0].message })
+		} else {
+			responseError(res, 500, { error: error.message })
+		}
 	}
 }
 

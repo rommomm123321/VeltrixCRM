@@ -7,6 +7,7 @@ const Subscription = sequelize.define(
 		name: {
 			type: DataTypes.STRING,
 			allowNull: false,
+			unique: true,
 		},
 		numberOfSessions: {
 			type: DataTypes.INTEGER,

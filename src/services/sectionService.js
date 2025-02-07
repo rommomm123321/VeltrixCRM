@@ -3,9 +3,17 @@ import { sectionRepository } from '../repositories/index.js'
 export const getAllSectionsByUser = async (
 	userId,
 	filters = {},
-	sort = ['createdAt', 'ASC']
+	sort = ['createdAt', 'ASC'],
+	limit = 10,
+	offset = 0
 ) => {
-	return await sectionRepository.findAllByUser(userId, filters, sort)
+	return await sectionRepository.findAllByUser(
+		userId,
+		filters,
+		sort,
+		limit,
+		offset
+	)
 }
 
 export const getSectionById = async id => {
