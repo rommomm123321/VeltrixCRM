@@ -51,6 +51,7 @@ const getStatisticsCSV = async (req, res) => {
 			userId: req.user.id,
 			memberId: req.query.memberId,
 			hallId: req.query.hallId,
+			trainerId: req.query.trainerId,
 			sectionId: req.query.sectionId,
 			subscriptionId: req.query.subscriptionId,
 			startDate: req.query.startDate,

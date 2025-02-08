@@ -102,6 +102,9 @@ const getStatisticsCSV = async (filter, page = 1, limit = 10) => {
 		const subscription = transaction.subscription || {
 			name: 'Unknown Subscription',
 		}
+		const trainer = transaction.trainer || {
+			name: 'Unknown Trainer',
+		}
 		const formattedDate = moment(transaction.transactionDate).format(
 			'DD.MM.YYYY - HH:mm'
 		)
@@ -109,6 +112,9 @@ const getStatisticsCSV = async (filter, page = 1, limit = 10) => {
 		return {
 			'Transaction Date': formattedDate,
 			Hall: hall.name,
+			Trainer: trainer.firstName
+				? `${trainer.firstName} ${trainer.lastName}`
+				: '',
 			Section: section.name,
 			Subscription: subscription.name,
 			Member: `${member.firstName} ${member.lastName}`,
