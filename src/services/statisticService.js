@@ -60,6 +60,7 @@ const getStatistics = async (filter, page = 1, limit = 10) => {
 	const hasFilters =
 		filter.memberId ||
 		filter.hallId ||
+		filter.trainerId ||
 		filter.sectionId ||
 		filter.subscriptionId ||
 		(filter.startDate && filter.endDate)
@@ -85,6 +86,7 @@ const getStatistics = async (filter, page = 1, limit = 10) => {
 			transactionDate: t.transactionDate,
 			member: t.Member,
 			hall: t.Hall,
+			trainer: t.Trainer,
 			section: t.Section,
 			subscription: t.Subscription,
 		})),

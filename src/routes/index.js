@@ -4,6 +4,8 @@ import sectionRoutes from './sectionRoutes.js'
 import subscriptionRoutes from './subscriptionRoutes.js'
 import memberRoutes from './memberRoutes.js'
 import statisticsRoutes from './statisticsRoutes.js'
+import trainerRoutes from './trainerRoutes.js'
+
 import imageRoutes from './imageRoutes.js'
 
 const routes = app => {
@@ -13,6 +15,7 @@ const routes = app => {
 	app.use('/api/v1', subscriptionRoutes)
 	app.use('/api/v1', memberRoutes)
 	app.use('/api/v1/', statisticsRoutes)
+	app.use('/api/v1/', trainerRoutes)
 
 	// app.use('/api/v1', imageRoutes)
 }

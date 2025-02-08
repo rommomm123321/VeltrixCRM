@@ -1,5 +1,11 @@
 import { Op } from 'sequelize'
-import { Hall } from '../models/index.js'
+import {
+	Hall,
+	Member,
+	MemberSubscriptions,
+	MemberTransaction,
+	Subscription,
+} from '../models/index.js'
 import { responses } from '../utils/responses.js'
 
 const findAllByUser = async (
@@ -43,7 +49,6 @@ const create = async hallData => {
 
 const update = async (id, hallData) => {
 	const hall = await findById(id)
-	console.log('hall :>> ', hall)
 	if (!hall) {
 		throw new Error(responses.error.hallNotFound)
 	}
@@ -51,11 +56,44 @@ const update = async (id, hallData) => {
 }
 
 const remove = async id => {
-	const hall = await findById(id)
+	const hall = await Hall.findByPk(id)
+
 	if (!hall) {
 		throw new Error(responses.error.hallNotFound)
 	}
-	return await hall.destroy()
+
+	const activeSubscriptionsCount = await Subscription.count({
+		include: [
+			{
+				model: MemberSubscriptions,
+				where: { hallId: id },
+				required: true,
+			},
+		],
+		where: { deletedAt: null },
+		paranoid: true,
+	})
+	const activeMembersCount = await Member.count({
+		include: [
+			{
+				model: MemberSubscriptions,
+				where: { hallId: id },
+				required: true,
+			},
+		],
+		where: { deletedAt: null },
+		paranoid: true,
+	})
+
+	if (activeSubscriptionsCount > 0 || activeMembersCount > 0) {
+		throw new Error(
+			`${responses.error.hallCannotBeDeletedHall} ${
+				activeSubscriptionsCount > 0 ? 'абонементах' : ''
+			} ${activeMembersCount > 0 ? 'та відвідувачах' : ''}`
+		)
+	}
+
+	await hall.destroy()
 }
 
 export default {

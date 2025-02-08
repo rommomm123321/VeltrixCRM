@@ -5,24 +5,29 @@ import {
 	Section,
 	Subscription,
 	Member,
+	Trainer,
 } from '../models/index.js'
 import sequelize from '../config/db.js'
 
 const addSubscriptionToMember = async (
 	userId,
 	memberId,
+	trainerId,
 	hallId,
 	sectionId,
 	subscriptionId,
-	price
+	price,
+	transactionDate
 ) => {
 	await MemberTransaction.create({
-		userId,
-		memberId,
-		hallId,
-		sectionId,
-		subscriptionId,
+		userId: parseInt(userId, 10),
+		memberId: parseInt(memberId, 10),
+		trainerId: trainerId ? parseInt(trainerId, 10) : null,
+		hallId: parseInt(hallId, 10),
+		sectionId: parseInt(sectionId, 10),
+		subscriptionId: parseInt(subscriptionId, 10),
 		amount: price,
+		transactionDate,
 	})
 }
 
@@ -484,6 +489,7 @@ const findAllStatistic = async (filter, page = 1, limit = 10) => {
 	if (filter.userId) whereCondition.userId = filter.userId
 	if (filter.memberId) whereCondition.memberId = filter.memberId
 	if (filter.hallId) whereCondition.hallId = filter.hallId
+	if (filter.trainerId) whereCondition.trainerId = filter.trainerId
 	if (filter.sectionId) whereCondition.sectionId = filter.sectionId
 	if (filter.subscriptionId)
 		whereCondition.subscriptionId = filter.subscriptionId
@@ -499,11 +505,29 @@ const findAllStatistic = async (filter, page = 1, limit = 10) => {
 		where: whereCondition,
 		order: [['transactionDate', 'DESC']],
 		include: [
-			{ model: Hall, attributes: ['id', 'name'] },
-			{ model: Section, attributes: ['id', 'name', 'description'] },
+			{ model: Hall, attributes: ['id', 'name', 'deletedAt'] },
+			{
+				model: Trainer,
+				attributes: [
+					'id',
+					'firstName',
+					'lastName',
+					'age',
+					'gender',
+					'phone',
+					'deletedAt',
+				],
+				paranoid: false,
+			},
+			{
+				model: Section,
+				attributes: ['id', 'name', 'description', 'deletedAt'],
+				paranoid: false,
+			},
 			{
 				model: Subscription,
-				attributes: ['id', 'name', 'numberOfSessions', 'price'],
+				attributes: ['id', 'name', 'numberOfSessions', 'price', 'deletedAt'],
+				paranoid: false,
 			},
 			{
 				model: Member,
@@ -515,7 +539,9 @@ const findAllStatistic = async (filter, page = 1, limit = 10) => {
 					'gender',
 					'phone',
 					'email',
+					'deletedAt',
 				],
+				paranoid: false,
 			},
 		],
 		limit: limit,
@@ -529,6 +555,7 @@ const getTotalRevenue = async (filter = {}) => {
 	if (filter.userId) whereCondition.userId = filter.userId
 	if (filter.memberId) whereCondition.memberId = filter.memberId
 	if (filter.hallId) whereCondition.hallId = filter.hallId
+	if (filter.trainerId) whereCondition.trainerId = filter.trainerId
 	if (filter.sectionId) whereCondition.sectionId = filter.sectionId
 	if (filter.subscriptionId)
 		whereCondition.subscriptionId = filter.subscriptionId

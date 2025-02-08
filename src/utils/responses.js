@@ -15,6 +15,12 @@ export const responses = {
 		subscriptionRenewed: 'Підписку успішно оновлено.',
 	},
 	error: {
+		hallCannotBeDeletedHall:
+			'Неможливо видалити зал, оскільки він використовується в',
+		hallCannotBeDeletedSection:
+			'Неможливо видалити секцію, оскільки вона використовується у дуяких',
+		hallCannotBeDeletedSubscription:
+			'Неможливо видалити абонемент, оскільки він використовується у дуяких',
 		invalidEmail: 'Невірна адреса електронної пошти.',
 		invalidCode: 'Невірний код підтвердження.',
 		codeExpired: 'Термін дії коду підтвердження минув.',
@@ -48,7 +54,6 @@ export const responses = {
 		verificationCodeRequired: "Код підтвердження є обов'язковим.",
 		hallNameMin: 'Назва залу повинна бути не менше 3 символів.',
 		hallNameMax: 'Назва залу повинна бути не більше 255 символів.',
-		hallNameRequired: "Назва залу є обов'язковою.",
 		sectionNameMin: 'Назва секції повинна бути не менше 3 символів.',
 		sectionNameMax: 'Назва секції повинна бути не більше 255 символів.',
 		sectionNameRequired: 'Поле "Назва секції" є обов\'язковим.',
@@ -105,5 +110,22 @@ export const responses = {
 			'Поле "subscriptionId" повинно бути числом.',
 		renewSubscriptionSubscriptionIdRequired:
 			'Поле "subscriptionId" є обов\'язковим.',
+		trainerIdInvalid: 'Невірний ID тренера.',
+		trainerFirstNameMin: "Ім'я тренера повинно бути не менше 2 символів.",
+		trainerFirstNameMax: "Ім'я тренера повинно бути не більше 255 символів.",
+		trainerFirstNameRequired: 'Поле "Ім\'я тренера" є обов\'язковим.',
+		trainerLastNameMin: 'Призвище тренера повинно бути не менше 2 символів.',
+		trainerLastNameMax: 'Призвище тренера повинно бути не більше 255 символів.',
+		trainerLastNameRequired: 'Поле "Призвище тренера" є обов\'язковим.',
+		trainerAgeMin: 'Вік тренера повинен бути не менше 18 років.',
+		trainerAgeMax: 'Вік тренера повинен бути не більше 100 років.',
+		trainerDateOfBirthRequired: "Дата народження є обов'язковою.",
+		trainerGenderInvalid:
+			'Поле "Стать тренера" повинно бути одне з: "male", "female", "other".',
+		trainerGenderRequired: 'Поле "Стать тренера" є обов\'язковим.',
+		trainerPhoneInvalid: 'Невірний номер телефону тренера.',
+		trainerPhoneRequired: 'Поле "Телефон тренера" є обов\'язковим.',
+		trainerPhoneUnique: 'Телефон тренера вже використовується.',
+		trainerNotFound: 'Тренера з таким ID не знайдено.',
 	},
 }

@@ -1,4 +1,12 @@
-import { Hall, HallSection, Section } from '../models/index.js'
+import {
+	Hall,
+	HallSection,
+	Member,
+	MemberSubscriptions,
+	Section,
+	Subscription,
+	Trainer,
+} from '../models/index.js'
 import { hallRepository } from './index.js'
 import { responses } from '../utils/responses.js'
 import { Op } from 'sequelize'
@@ -24,6 +32,9 @@ const findAllByUser = async (
 	if (filters.id) {
 		where.id = filters.id
 	}
+	if (filters.trainerId) {
+		where.trainerId = filters.trainerId
+	}
 	const include = [
 		{
 			model: Hall,
@@ -32,6 +43,10 @@ const findAllByUser = async (
 			},
 			where: filters.hallId ? { id: { [Op.in]: filters.hallId } } : undefined,
 			required: !!filters.hallId,
+		},
+		{
+			model: Trainer,
+			required: !!filters.trainerId,
 		},
 	]
 	return await Section.findAndCountAll({
@@ -51,7 +66,15 @@ const findById = async id => {
 	return await Section.findByPk(id)
 }
 
-const create = async (sectionData, hallIds = []) => {
+const create = async (sectionData, hallIds = [], trainerId = null) => {
+	if (trainerId) {
+		const trainer = await Trainer.findByPk(trainerId)
+		if (!trainer) {
+			throw new Error(responses.validation.trainerNotFound)
+		}
+		sectionData.trainerId = trainer.id
+	}
+
 	const halls = await hallRepository.findAllByUser(sectionData?.userId, {
 		id: hallIds,
 	})
@@ -93,6 +116,38 @@ const remove = async id => {
 	if (!section) {
 		throw new Error(responses.error.sectionNotFound)
 	}
+
+	const activeSubscriptionsCount = await Subscription.count({
+		include: [
+			{
+				model: MemberSubscriptions,
+				where: { sectionId: id },
+				required: true,
+			},
+		],
+		where: { deletedAt: null },
+		paranoid: true,
+	})
+	const activeMembersCount = await Member.count({
+		include: [
+			{
+				model: MemberSubscriptions,
+				where: { sectionId: id },
+				required: true,
+			},
+		],
+		where: { deletedAt: null },
+		paranoid: true,
+	})
+
+	if (activeSubscriptionsCount > 0 || activeMembersCount > 0) {
+		throw new Error(
+			`${responses.error.hallCannotBeDeletedSection} ${
+				activeSubscriptionsCount > 0 ? 'абонементах' : ''
+			} ${activeMembersCount > 0 ? 'та відвідувачах' : ''}`
+		)
+	}
+
 	return await section.destroy()
 }
 
@@ -105,6 +160,37 @@ const removeMany = async ids => {
 
 	if (sections.length !== ids.length) {
 		throw new Error(responses.error.sectionNotFound)
+	}
+	const activeSubscriptionsCount = await Subscription.count({
+		include: [
+			{
+				model: MemberSubscriptions,
+				where: { sectionId: ids },
+				required: true,
+			},
+		],
+		where: { deletedAt: null },
+		paranoid: true,
+	})
+
+	const activeMembersCount = await Member.count({
+		include: [
+			{
+				model: MemberSubscriptions,
+				where: { sectionId: ids },
+				required: true,
+			},
+		],
+		where: { deletedAt: null },
+		paranoid: true,
+	})
+
+	if (activeSubscriptionsCount > 0 || activeMembersCount > 0) {
+		throw new Error(
+			`${responses.error.hallCannotBeDeletedSection} ${
+				activeSubscriptionsCount > 0 ? 'абонементах' : ''
+			} ${activeMembersCount > 0 ? 'та відвідувачах' : ''}`
+		)
 	}
 
 	return await Section.destroy({

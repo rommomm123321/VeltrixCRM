@@ -40,6 +40,9 @@ export const requestSection = Joi.object({
 		'array.base': responses.validation.sectionHallIdsArray,
 		'number.base': responses.validation.sectionHallIdsItems,
 	}),
+	trainerId: Joi.number().integer().optional().allow(null).messages({
+		'number.base': responses.validation.trainerIdInvalid,
+	}),
 })
 
 export const requestSubscription = Joi.object({
@@ -108,6 +111,33 @@ export const requestMember = Joi.object({
 		.optional()
 		.messages({
 			'array.base': responses.validation.memberSectionsArray,
+		}),
+})
+
+export const requestTrainer = Joi.object({
+	firstName: Joi.string().min(2).max(255).required().messages({
+		'string.min': responses.validation.trainerFirstNameMin,
+		'string.max': responses.validation.trainerFirstNameMax,
+		'any.required': responses.validation.trainerFirstNameRequired,
+	}),
+	lastName: Joi.string().min(2).max(255).required().messages({
+		'string.min': responses.validation.trainerLastNameMin,
+		'string.max': responses.validation.trainerLastNameMax,
+		'any.required': responses.validation.trainerLastNameRequired,
+	}),
+	dateOfBirth: Joi.date().required().messages({
+		'any.required': responses.validation.trainerDateOfBirthRequired,
+	}),
+	gender: Joi.string().valid('male', 'female', 'other').required().messages({
+		'any.only': responses.validation.trainerGenderInvalid,
+		'any.required': responses.validation.trainerGenderRequired,
+	}),
+	phone: Joi.string()
+		.pattern(/^\d{10,15}$/)
+		.required()
+		.messages({
+			'string.pattern.base': responses.validation.trainerPhoneInvalid,
+			'any.required': responses.validation.trainerPhoneRequired,
 		}),
 })
 

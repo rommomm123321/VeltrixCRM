@@ -6,6 +6,7 @@ import {
 	MemberTransaction,
 	Section,
 	Subscription,
+	Trainer,
 } from '../models/index.js'
 import { responses } from '../utils/responses.js'
 import memberTransactionRepository from './memberTransactionRepository.js'
@@ -133,7 +134,6 @@ const create = async memberData => {
 	if (memberData.email && existingMemberWithEmail) {
 		throw new Error(responses.validation.memberEmailRequired)
 	}
-
 	const newMember = await Member.create({
 		userId,
 		hallId,
@@ -145,8 +145,7 @@ const create = async memberData => {
 		email,
 		registrationDate,
 	})
-
-	const expirationDate = new Date()
+	const expirationDate = new Date(registrationDate || new Date())
 	expirationDate.setDate(expirationDate.getDate() + 30)
 
 	const subscriptionsData = await Promise.all(
@@ -157,15 +156,23 @@ const create = async memberData => {
 			if (!subscription)
 				throw new Error(`Subscription ${subscriptionId} not found`)
 
+			const section = await Section.findByPk(sectionId, {
+				attributes: ['trainerId'],
+			})
+			const trainerId = section?.trainerId
+				? parseInt(section.trainerId, 10)
+				: null
+
 			await memberTransactionRepository.addSubscriptionToMember(
 				userId,
 				newMember.id,
+				trainerId,
 				hallId,
 				sectionId,
 				subscriptionId,
-				subscription.price
+				subscription.price,
+				registrationDate
 			)
-
 			return {
 				memberId: newMember.id,
 				hallId,
@@ -173,12 +180,12 @@ const create = async memberData => {
 				subscriptionId,
 				priceAtPurchase: subscription.price,
 				totalSessions: subscription.numberOfSessions,
+				purchaseDate: registrationDate || new Date(),
 				expirationDate,
 				status: 'active',
 			}
 		})
 	)
-
 	await MemberSubscriptions.bulkCreate(subscriptionsData)
 
 	return newMember
@@ -193,7 +200,7 @@ const update = async (id, memberData) => {
 	const existingMember = await Member.findOne({
 		where: { phone: memberData.phone },
 	})
-	if (existingMember && existingMember.id !== id) {
+	if (existingMember && existingMember.id != id) {
 		throw new Error(responses.validation.memberPhoneRequired)
 	}
 	const existingMemberWithEmail = await Member.findOne({
@@ -202,7 +209,7 @@ const update = async (id, memberData) => {
 	if (
 		memberData.email &&
 		existingMemberWithEmail &&
-		existingMemberWithEmail.id !== id
+		existingMemberWithEmail.id != id
 	) {
 		throw new Error(responses.validation.memberEmailRequired)
 	}
@@ -239,6 +246,11 @@ const update = async (id, memberData) => {
 			throw new Error(`Subscription with ID ${subscriptionId} not found`)
 		}
 
+		const sectionDetails = await Section.findByPk(sectionId)
+		const trainerId = sectionDetails?.trainerId
+			? parseInt(sectionDetails.trainerId, 10)
+			: null
+
 		if (existingSubscription) {
 			if (existingSubscription.subscriptionId !== subscriptionId) {
 				existingSubscription.subscriptionId = subscriptionId
@@ -250,6 +262,7 @@ const update = async (id, memberData) => {
 				await memberTransactionRepository.addSubscriptionToMember(
 					member.userId,
 					id,
+					trainerId,
 					memberData.hallId,
 					sectionId,
 					subscriptionId,
@@ -271,6 +284,7 @@ const update = async (id, memberData) => {
 			await memberTransactionRepository.addSubscriptionToMember(
 				member.userId,
 				id,
+				trainerId,
 				memberData.hallId,
 				sectionId,
 				subscriptionId,

@@ -28,6 +28,16 @@ module.exports = {
 				onUpdate: 'CASCADE',
 				onDelete: 'CASCADE',
 			},
+			trainerId: {
+				type: Sequelize.INTEGER,
+				allowNull: true,
+				references: {
+					model: 'Trainers',
+					key: 'id',
+				},
+				onUpdate: 'CASCADE',
+				onDelete: 'SET NULL',
+			},
 			createdAt: {
 				type: Sequelize.DATE,
 				allowNull: false,
@@ -35,6 +45,10 @@ module.exports = {
 			updatedAt: {
 				type: Sequelize.DATE,
 				allowNull: false,
+			},
+			deletedAt: {
+				type: Sequelize.DATE,
+				allowNull: true,
 			},
 		})
 	},

@@ -13,6 +13,7 @@ const Hall = sequelize.define(
 	{
 		tableName: 'Halls',
 		timestamps: true,
+		paranoid: true,
 	}
 )
 

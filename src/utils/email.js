@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer'
+import { verificationEmailTemplate } from './emailTemplates.js'
 
 const transporter = nodemailer.createTransport({
 	host: process.env.SMTP_HOST,
@@ -30,6 +31,6 @@ export const sendVerificationCode = async (email, code) => {
 	await sendMail({
 		to: email,
 		subject: 'Ваш код підтвердження',
-		html: `Ваш код підтвердження: ${code}`,
+		html: verificationEmailTemplate(code),
 	})
 }

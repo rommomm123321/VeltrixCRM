@@ -5,6 +5,7 @@ import sectionController from './sectionController.js'
 import subscriptionController from './subscriptionController.js'
 import memberController from './memberController.js'
 import statisticsController from './statisticsController.js'
+import trainerController from './trainerController.js'
 
 export {
 	hallController,
@@ -14,4 +15,5 @@ export {
 	subscriptionController,
 	memberController,
 	statisticsController,
+	trainerController,
 }

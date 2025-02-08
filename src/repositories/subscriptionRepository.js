@@ -4,6 +4,7 @@ import {
 	SectionSubscription,
 	MemberSubscriptions,
 	Section,
+	Member,
 } from '../models/index.js'
 import { responses } from '../utils/responses.js'
 import { memberTransactionRepository, sectionRepository } from './index.js'
@@ -101,6 +102,27 @@ const remove = async id => {
 	if (!subscription) {
 		throw new Error(responses.error.subscriptionNotFound)
 	}
+
+	const activeMembersCount = await Member.count({
+		include: [
+			{
+				model: MemberSubscriptions,
+				where: { subscriptionId: id },
+				required: true,
+			},
+		],
+		where: { deletedAt: null },
+		paranoid: true,
+	})
+
+	if (activeMembersCount > 0) {
+		throw new Error(
+			`${responses.error.hallCannotBeDeletedSubscription} ${
+				activeMembersCount > 0 ? 'відвідувачах' : ''
+			}`
+		)
+	}
+
 	return await subscription.destroy()
 }
 
@@ -113,6 +135,26 @@ const removeMany = async ids => {
 
 	if (subscriptions.length !== ids.length) {
 		throw new Error(responses.error.subscriptionNotFound)
+	}
+
+	const activeMembersCount = await Member.count({
+		include: [
+			{
+				model: MemberSubscriptions,
+				where: { subscriptionId: ids },
+				required: true,
+			},
+		],
+		where: { deletedAt: null },
+		paranoid: true,
+	})
+
+	if (activeMembersCount > 0) {
+		throw new Error(
+			`${responses.error.hallCannotBeDeletedSubscription} ${
+				activeMembersCount > 0 ? 'відвідувачах' : ''
+			}`
+		)
 	}
 
 	return await Subscription.destroy({

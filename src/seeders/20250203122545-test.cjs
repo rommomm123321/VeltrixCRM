@@ -33,12 +33,44 @@ module.exports = {
 			returning: true,
 		})
 
+		const trainers = []
+		for (let i = 1; i <= 10; i++) {
+			const birthYear = new Date().getFullYear() - (20 + (i % 40))
+			const birthMonth = Math.floor(Math.random() * 12)
+			const birthDay = Math.floor(Math.random() * 28) + 1
+
+			trainers.push({
+				userId,
+				firstName: `TrainerFirstName ${i}`,
+				lastName: `TrainerLastName ${i}`,
+				age: 20 + (i % 40),
+				phone: `38000000000${i}`,
+				gender: i % 2 === 0 ? 'male' : 'female',
+				dateOfBirth: new Date(birthYear, birthMonth, birthDay),
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			})
+		}
+		const insertedTrainers = await queryInterface.bulkInsert(
+			'Trainers',
+			trainers,
+			{
+				returning: true,
+			}
+		)
+
 		const sections = []
 		for (let i = 1; i <= 100; i++) {
+			const trainerId =
+				Math.random() < 0.5
+					? insertedTrainers[i % insertedTrainers.length]?.id
+					: null
+
 			sections.push({
 				name: `Section ${i}`,
 				description: `Description for section ${i}`,
 				userId,
+				trainerId: trainerId,
 				createdAt: new Date(),
 				updatedAt: new Date(),
 			})
@@ -60,7 +92,6 @@ module.exports = {
 		}
 		await queryInterface.bulkInsert('HallSections', hallSections)
 
-		// Создание подписок
 		const subscriptions = []
 		for (let i = 1; i <= 100; i++) {
 			subscriptions.push({
@@ -138,12 +169,15 @@ module.exports = {
 
 		const memberTransactions = []
 		for (let i = 0; i < 100; i++) {
+			const sectionId = insertedSections[i % 100].id
+			const trainerId = insertedSections[i % 100].trainerId
 			memberTransactions.push({
 				memberId: insertedMembers[i % 100].id,
 				hallId: insertedHalls[i % 100].id,
-				sectionId: insertedSections[i % 100].id,
+				sectionId,
 				subscriptionId: insertedSubscriptions[i % 100].id,
 				userId,
+				trainerId,
 				amount: 50 + (i % 50),
 				transactionDate: new Date(),
 				createdAt: new Date(),
@@ -161,6 +195,7 @@ module.exports = {
 		await queryInterface.bulkDelete('Subscriptions', null, {})
 		await queryInterface.bulkDelete('HallSections', null, {})
 		await queryInterface.bulkDelete('Sections', null, {})
+		await queryInterface.bulkDelete('Trainers', null, {})
 		await queryInterface.bulkDelete('Halls', null, {})
 		await queryInterface.bulkDelete('Users', null, {})
 	},

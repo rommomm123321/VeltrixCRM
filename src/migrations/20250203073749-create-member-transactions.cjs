@@ -43,6 +43,15 @@ module.exports = {
 				},
 				onDelete: 'CASCADE',
 			},
+			trainerId: {
+				type: Sequelize.INTEGER,
+				allowNull: true,
+				references: {
+					model: 'Trainers',
+					key: 'id',
+				},
+				onDelete: 'SET NULL',
+			},
 			amount: {
 				type: Sequelize.DECIMAL(10, 2),
 				allowNull: false,

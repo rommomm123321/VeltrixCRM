@@ -5,6 +5,7 @@ import sectionService from './sectionService.js'
 import subscriptionService from './subscriptionService.js'
 import memberService from './memberService.js'
 import statisticService from './statisticService.js'
+import trainerService from './trainerService.js'
 
 export {
 	hallService,
@@ -14,4 +15,5 @@ export {
 	subscriptionService,
 	memberService,
 	statisticService,
+	trainerService,
 }

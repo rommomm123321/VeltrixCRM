@@ -22,6 +22,7 @@ const Section = sequelize.define(
 	{
 		tableName: 'Sections',
 		timestamps: true,
+		paranoid: true,
 	}
 )
 

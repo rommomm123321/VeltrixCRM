@@ -37,7 +37,7 @@ const getSectionById = async (req, res) => {
 
 const createSection = async (req, res) => {
 	const { id: userId } = req.user
-	const { hallIds = [], ...sectionData } = req.body
+	const { hallIds = [], trainerId = null, ...sectionData } = req.body
 	try {
 		await requestSection.validateAsync(req.body)
 		const newSection = await sectionService.createSection(
@@ -45,7 +45,8 @@ const createSection = async (req, res) => {
 				...sectionData,
 				userId,
 			},
-			hallIds
+			hallIds,
+			trainerId
 		)
 		responseSuccess(res, 201, newSection)
 	} catch (error) {

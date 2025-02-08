@@ -34,6 +34,12 @@ const MemberTransaction = sequelize.define(
 			references: { model: 'Users', key: 'id' },
 			onDelete: 'CASCADE',
 		},
+		trainerId: {
+			type: DataTypes.INTEGER,
+			allowNull: true,
+			references: { model: 'Trainers', key: 'id' },
+			onDelete: 'SET NULL',
+		},
 		amount: {
 			type: DataTypes.DECIMAL(10, 2),
 			allowNull: false,

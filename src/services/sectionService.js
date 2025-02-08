@@ -20,8 +20,12 @@ export const getSectionById = async id => {
 	return await sectionRepository.findById(id)
 }
 
-export const createSection = async (sectionData, hallIds = []) => {
-	return await sectionRepository.create(sectionData, hallIds)
+export const createSection = async (
+	sectionData,
+	hallIds = [],
+	trainerId = null
+) => {
+	return await sectionRepository.create(sectionData, hallIds, trainerId)
 }
 
 export const updateSection = async (id, data, hallIds = [], userId) => {

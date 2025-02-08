@@ -5,6 +5,7 @@ import subscriptionRepository from './subscriptionRepository.js'
 import memberRepository from './memberRepository.js'
 import memberSubscriptionsRepository from './memberSubscriptionsRepository.js'
 import memberTransactionRepository from './memberTransactionRepository.js'
+import trainerRepository from './trainerRepository.js'
 
 export {
 	hallRepository,
@@ -14,4 +15,5 @@ export {
 	memberRepository,
 	memberSubscriptionsRepository,
 	memberTransactionRepository,
+	trainerRepository,
 }

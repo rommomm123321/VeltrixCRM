@@ -21,6 +21,7 @@ const Subscription = sequelize.define(
 	{
 		tableName: 'Subscriptions',
 		timestamps: true,
+		paranoid: true,
 	}
 )
 
