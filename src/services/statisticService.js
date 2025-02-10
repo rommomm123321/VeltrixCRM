@@ -54,8 +54,6 @@ const getRevenue = async filter => {
 	}
 }
 
-const BOM = '\uFEFF'
-
 const getStatistics = async (filter, page = 1, limit = 10) => {
 	const hasFilters =
 		filter.memberId ||
@@ -110,20 +108,21 @@ const getStatisticsCSV = async (filter, page = 1, limit = 10) => {
 		)
 
 		return {
-			'Transaction Date': formattedDate,
-			Hall: hall.name,
-			Trainer: trainer.firstName
+			'Дата оплати': formattedDate,
+			Зал: hall.name,
+			Тренер: trainer.firstName
 				? `${trainer.firstName} ${trainer.lastName}`
 				: '',
-			Section: section.name,
-			Subscription: subscription.name,
-			Member: `${member.firstName} ${member.lastName}`,
-			Amount: transaction.amount,
+			Секція: section.name,
+			Абонемент: subscription.name,
+			Відвідувач: `${member.firstName} ${member.lastName}`,
+			Сума: transaction.amount,
 		}
 	})
 
 	const csvData = jsonToCsv(transactions)
 
+	const BOM = '\uFEFF'
 	const encodedCsvData = BOM + csvData
 
 	return Buffer.from(encodedCsvData, 'utf-8')
