@@ -5,6 +5,7 @@ import {
 	MemberSubscriptions,
 	Section,
 	Member,
+	Trainer,
 } from '../models/index.js'
 import { responses } from '../utils/responses.js'
 import { memberTransactionRepository, sectionRepository } from './index.js'
@@ -59,18 +60,18 @@ const findById = async id => {
 }
 
 const create = async (subscriptionData, sectionIds = []) => {
-	const sections = await sectionRepository.findAllByUser(
-		subscriptionData?.userId,
-		{
+	const sections = await sectionRepository.findAll({
+		where: {
+			userId: subscriptionData?.userId,
 			id: sectionIds,
-		}
-	)
-	if (sections.count !== sectionIds.length) {
+		},
+	})
+	if (sections.length !== sectionIds.length) {
 		throw new Error(responses.error.subscriptionNotFound)
 	}
 	const newSubscription = await Subscription.create(subscriptionData)
 	if (sectionIds.length > 0) {
-		const sectionIdsToAttach = sections.rows.map(section => section.id)
+		const sectionIdsToAttach = sections.map(section => section.id)
 		await newSubscription.addSections(sectionIdsToAttach)
 	}
 
@@ -78,10 +79,13 @@ const create = async (subscriptionData, sectionIds = []) => {
 }
 
 const update = async (id, subscriptionData, sectionIds = [], userId) => {
-	const sections = await sectionRepository.findAllByUser(userId, {
-		id: sectionIds,
+	const sections = await sectionRepository.findAll({
+		where: {
+			userId,
+			id: sectionIds,
+		},
 	})
-	if (sections.rows.length !== sectionIds.length) {
+	if (sections.length !== sectionIds.length) {
 		throw new Error(responses.error.subscriptionNotFound)
 	}
 	const subscription = await findById(id)
@@ -89,7 +93,7 @@ const update = async (id, subscriptionData, sectionIds = [], userId) => {
 		throw new Error(responses.error.subscriptionNotFound)
 	}
 	if (sectionIds.length > 0) {
-		const sectionIdsToAttach = sections.rows.map(section => section.id)
+		const sectionIdsToAttach = sections.map(section => section.id)
 		await subscription.setSections(sectionIdsToAttach)
 	} else {
 		await subscription.setSections([])
@@ -209,10 +213,21 @@ const renewSubscription = async (
 	if (currentSubscription.status == 'active') {
 		throw new Error(`Subscription status is active`)
 	}
+
+	const section = await Section.findByPk(sectionId, {
+		attributes: ['trainerId'],
+	})
+	const trainer = await Trainer.findByPk(section?.trainerId, {
+		attributes: ['id'],
+		paranoid: true,
+	})
+	const trainerId = trainer?.id ? parseInt(trainer?.id, 10) : null
+
 	if (currentSubscription) {
 		const subscription = await Subscription.findByPk(subscriptionId, {
 			attributes: ['price', 'numberOfSessions'],
 		})
+
 		if (!subscription) {
 			throw new Error(`Subscription ${subscriptionId} not found`)
 		}
@@ -226,9 +241,11 @@ const renewSubscription = async (
 		currentSubscription.usedSessions = 0
 		currentSubscription.status = 'active'
 		await currentSubscription.save()
+
 		await memberTransactionRepository.addSubscriptionToMember(
 			userId,
 			memberId,
+			trainerId,
 			currentSubscription.hallId,
 			sectionId,
 			subscriptionId,
@@ -258,6 +275,7 @@ const renewSubscription = async (
 		await memberTransactionRepository.addSubscriptionToMember(
 			userId,
 			memberId,
+			trainerId,
 			newMemberSubscriptions.hallId,
 			sectionId,
 			subscriptionId,

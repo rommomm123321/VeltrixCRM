@@ -17,8 +17,9 @@ routes(app)
 
 app.use(errorHandler)
 
-sequelize.sync().then(() => {
-	console.log('Database synced')
-})
+sequelize
+	.sync({ force: false })
+	.then(() => console.log('✅ Database synced'))
+	.catch(err => console.error('❌ Database sync error:', err))
 
 export default app

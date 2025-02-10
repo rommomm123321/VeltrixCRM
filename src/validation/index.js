@@ -79,7 +79,7 @@ export const requestMember = Joi.object({
 		'string.max': responses.validation.memberLastNameMax,
 		'any.required': responses.validation.memberLastNameRequired,
 	}),
-	age: Joi.number().min(18).max(100).required().messages({
+	age: Joi.number().min(6).max(100).required().messages({
 		'number.min': responses.validation.memberAgeMin,
 		'number.max': responses.validation.memberAgeMax,
 		'any.required': responses.validation.memberAgeRequired,

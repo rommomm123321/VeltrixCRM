@@ -159,9 +159,11 @@ const create = async memberData => {
 			const section = await Section.findByPk(sectionId, {
 				attributes: ['trainerId'],
 			})
-			const trainerId = section?.trainerId
-				? parseInt(section.trainerId, 10)
-				: null
+			const trainer = await Trainer.findByPk(section?.trainerId, {
+				attributes: ['id'],
+				paranoid: true,
+			})
+			const trainerId = trainer?.id ? parseInt(trainer?.id, 10) : null
 
 			await memberTransactionRepository.addSubscriptionToMember(
 				userId,
@@ -246,10 +248,14 @@ const update = async (id, memberData) => {
 			throw new Error(`Subscription with ID ${subscriptionId} not found`)
 		}
 
-		const sectionDetails = await Section.findByPk(sectionId)
-		const trainerId = sectionDetails?.trainerId
-			? parseInt(sectionDetails.trainerId, 10)
-			: null
+		const sectionDetails = await Section.findByPk(sectionId, {
+			attributes: ['trainerId'],
+		})
+		const trainer = await Trainer.findByPk(sectionDetails?.trainerId, {
+			attributes: ['id'],
+			paranoid: true,
+		})
+		const trainerId = trainer?.id ? parseInt(trainer?.id, 10) : null
 
 		if (existingSubscription) {
 			if (existingSubscription.subscriptionId !== subscriptionId) {

@@ -58,8 +58,8 @@ const findAllByUser = async (
 	})
 }
 
-const findAll = async () => {
-	return await Section.findAll()
+const findAll = async where => {
+	return await Section.findAll(where)
 }
 
 const findById = async id => {
@@ -75,16 +75,19 @@ const create = async (sectionData, hallIds = [], trainerId = null) => {
 		sectionData.trainerId = trainer.id
 	}
 
-	const halls = await hallRepository.findAllByUser(sectionData?.userId, {
-		id: hallIds,
+	const halls = await hallRepository.findAll({
+		where: {
+			userId: sectionData?.userId,
+			id: hallIds,
+		},
 	})
 
-	if (halls.count !== hallIds.length) {
+	if (halls.length !== hallIds.length) {
 		throw new Error(responses.error.sectionNotBelongHall)
 	}
 	const newSection = await Section.create(sectionData)
 	if (hallIds.length > 0) {
-		const hallIdsToAttach = halls.rows.map(hall => hall.id)
+		const hallIdsToAttach = halls.map(hall => hall.id)
 		await newSection.addHalls(hallIdsToAttach)
 	}
 
@@ -92,10 +95,13 @@ const create = async (sectionData, hallIds = [], trainerId = null) => {
 }
 
 const update = async (id, sectionData, hallIds = [], userId) => {
-	const halls = await hallRepository.findAllByUser(userId, {
-		id: hallIds,
+	const halls = await hallRepository.findAll({
+		where: {
+			userId,
+			id: hallIds,
+		},
 	})
-	if (halls.count !== hallIds.length) {
+	if (halls.length !== hallIds.length) {
 		throw new Error(responses.error.sectionNotBelongHall)
 	}
 	const section = await findById(id)
@@ -103,7 +109,7 @@ const update = async (id, sectionData, hallIds = [], userId) => {
 		throw new Error(responses.error.sectionNotFound)
 	}
 	if (hallIds.length > 0) {
-		const hallIdsToAttach = halls.rows.map(hall => hall.id)
+		const hallIdsToAttach = halls.map(hall => hall.id)
 		await section.setHalls(hallIdsToAttach)
 	} else {
 		await section.setHalls([])

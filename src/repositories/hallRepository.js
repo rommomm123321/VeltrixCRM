@@ -31,8 +31,8 @@ const findAllByUser = async (
 	})
 }
 
-const findAll = async () => {
-	return await Hall.findAll()
+const findAll = async where => {
+	return await Hall.findAll(where)
 }
 
 const findById = async id => {

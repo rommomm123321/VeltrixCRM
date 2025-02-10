@@ -505,7 +505,7 @@ const findAllStatistic = async (filter, page = 1, limit = 10) => {
 		where: whereCondition,
 		order: [['transactionDate', 'DESC']],
 		include: [
-			{ model: Hall, attributes: ['id', 'name', 'deletedAt'] },
+			{ model: Hall, attributes: ['id', 'name', 'deletedAt'], paranoid: false },
 			{
 				model: Trainer,
 				attributes: [
