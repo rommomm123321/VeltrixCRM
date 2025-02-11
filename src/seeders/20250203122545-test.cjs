@@ -33,6 +33,25 @@ module.exports = {
 			returning: true,
 		})
 
+		const expenses = []
+		for (let i = 1; i <= 100; i++) {
+			const amount = (Math.random() * (500 - 50) + 50).toFixed(2)
+			expenses.push({
+				title: 'Electricity Bill',
+				description:
+					'Payment for electricity in Gym ' + (i % 2 === 0 ? '1' : '2'),
+				amount: parseFloat(amount),
+				date: new Date(),
+				hallId: insertedHalls[i % 100].id,
+				userId,
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			})
+		}
+		await queryInterface.bulkInsert('Expenses', expenses, {
+			returning: true,
+		})
+
 		const trainers = []
 		for (let i = 1; i <= 10; i++) {
 			const birthYear = new Date().getFullYear() - (20 + (i % 40))
@@ -196,6 +215,7 @@ module.exports = {
 		await queryInterface.bulkDelete('HallSections', null, {})
 		await queryInterface.bulkDelete('Sections', null, {})
 		await queryInterface.bulkDelete('Trainers', null, {})
+		await queryInterface.bulkDelete('Expenses ', null, {})
 		await queryInterface.bulkDelete('Halls', null, {})
 		await queryInterface.bulkDelete('Users', null, {})
 	},

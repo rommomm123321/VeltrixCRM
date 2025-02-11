@@ -29,6 +29,7 @@ export const responses = {
 		userNotFound: 'Користувача з такою електронною поштою не знайдено.',
 		userExists: 'Користувач з такою електронною поштою вже існує.',
 		hallNotFound: 'Зал не знайдено.',
+		expenseNotFound: 'Витрати не знайдено.',
 		hallNameUnique: 'Назва залу повинна бути унікальною',
 		sectionNameUnique: 'Назва секції повинна бути унікальною',
 		subscriptionNameUnique: 'Назва абонементу повинна бути унікальною',

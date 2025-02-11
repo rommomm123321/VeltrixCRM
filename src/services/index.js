@@ -6,6 +6,7 @@ import subscriptionService from './subscriptionService.js'
 import memberService from './memberService.js'
 import statisticService from './statisticService.js'
 import trainerService from './trainerService.js'
+import expenseService from './expenseService.js'
 
 export {
 	hallService,
@@ -16,4 +17,5 @@ export {
 	memberService,
 	statisticService,
 	trainerService,
+	expenseService,
 }

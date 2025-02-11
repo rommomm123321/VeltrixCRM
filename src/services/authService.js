@@ -3,6 +3,7 @@ import { generateToken } from '../utils/jwt.js'
 import { userRepository } from '../repositories/index.js'
 import emailQueue from '../utils/queue.js'
 import { responses } from '../utils/responses.js'
+import { addEmailToQueue } from '../utils/emailQueue.js'
 
 const generateVerificationCode = () => {
 	return uuidv4().replace(/-/g, '').substring(0, 8)
@@ -22,11 +23,13 @@ const requestVerificationCode = async email => {
 		})
 	}
 
-	await emailQueue.add({
-		type: 'verification',
-		email,
-		code: verificationCode,
-	})
+	// await emailQueue.add({
+	// 	type: 'verification',
+	// 	email,
+	// 	code: verificationCode,
+	// })
+
+	await addEmailToQueue(email, verificationCode)
 }
 
 const verifyCode = async (email, code) => {

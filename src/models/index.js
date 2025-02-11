@@ -8,6 +8,7 @@ import SectionSubscription from './sectionSubscription.js'
 import MemberSubscriptions from './memberSubscriptions.js'
 import MemberTransaction from './memberTransaction.js'
 import Trainer from './trainer.js'
+import Expense from './expense.js'
 
 User.hasMany(Hall, { foreignKey: 'userId' })
 Hall.belongsTo(User, { foreignKey: 'userId' })
@@ -69,6 +70,10 @@ Section.belongsTo(Trainer, { foreignKey: 'trainerId' })
 Trainer.hasMany(Section, { foreignKey: 'trainerId' })
 User.hasMany(Trainer, { foreignKey: 'userId' })
 Trainer.belongsTo(User, { foreignKey: 'userId' })
+User.hasMany(Expense, { foreignKey: 'userId' })
+Expense.belongsTo(User, { foreignKey: 'userId' })
+Hall.hasMany(Expense, { foreignKey: 'hallId' })
+Expense.belongsTo(Hall, { foreignKey: 'hallId' })
 
 export {
 	User,
@@ -81,4 +86,5 @@ export {
 	MemberSubscriptions,
 	MemberTransaction,
 	Trainer,
+	Expense,
 }

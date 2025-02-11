@@ -483,7 +483,7 @@ const getRevenue = async filter => {
 	}
 }
 
-const findAllStatistic = async (filter, page = 1, limit = 10) => {
+const findAllStatistic = async (sort, filter, page = 1, limit = 10) => {
 	const whereCondition = {}
 
 	if (filter.userId) whereCondition.userId = filter.userId
@@ -503,7 +503,7 @@ const findAllStatistic = async (filter, page = 1, limit = 10) => {
 
 	return await MemberTransaction.findAndCountAll({
 		where: whereCondition,
-		order: [['transactionDate', 'DESC']],
+		order: [sort, ['transactionDate', 'DESC']],
 		include: [
 			{ model: Hall, attributes: ['id', 'name', 'deletedAt'], paranoid: false },
 			{

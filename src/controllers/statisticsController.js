@@ -35,8 +35,14 @@ const getStatistics = async (req, res) => {
 		}
 		const page = parseInt(req.query.page) || 1
 		const limit = parseInt(req.query.limit) || 10
+		const sort = req.query.sort || ['createdAt', 'ASC']
 
-		const stats = await statisticService.getStatistics(filter, page, limit)
+		const stats = await statisticService.getStatistics(
+			sort,
+			filter,
+			page,
+			limit
+		)
 
 		responseSuccess(res, 200, stats)
 	} catch (error) {

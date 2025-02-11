@@ -54,7 +54,7 @@ const getRevenue = async filter => {
 	}
 }
 
-const getStatistics = async (filter, page = 1, limit = 10) => {
+const getStatistics = async (sort, filter, page = 1, limit = 10) => {
 	const hasFilters =
 		filter.memberId ||
 		filter.hallId ||
@@ -70,7 +70,12 @@ const getStatistics = async (filter, page = 1, limit = 10) => {
 		  })
 
 	const { count, rows: transactions } =
-		await memberTransactionRepository.findAllStatistic(filter, page, limit)
+		await memberTransactionRepository.findAllStatistic(
+			sort,
+			filter,
+			page,
+			limit
+		)
 
 	return {
 		totalRevenue,

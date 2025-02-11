@@ -6,7 +6,7 @@ import subscriptionController from './subscriptionController.js'
 import memberController from './memberController.js'
 import statisticsController from './statisticsController.js'
 import trainerController from './trainerController.js'
-
+import expenseController from './expenseController.js'
 export {
 	hallController,
 	authController,
@@ -16,4 +16,5 @@ export {
 	memberController,
 	statisticsController,
 	trainerController,
+	expenseController,
 }
