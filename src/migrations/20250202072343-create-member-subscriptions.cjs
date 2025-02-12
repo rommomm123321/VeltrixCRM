@@ -74,6 +74,10 @@ module.exports = {
 				type: Sequelize.DATE,
 				allowNull: true,
 			},
+			visitHistory: {
+				type: Sequelize.JSON,
+				allowNull: true,
+			},
 			createdAt: {
 				type: Sequelize.DATE,
 				allowNull: false,

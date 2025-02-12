@@ -61,9 +61,44 @@ const deleteExpense = async (req, res) => {
 	}
 }
 
+const getStatisticsCSV = async (req, res) => {
+	try {
+		const filter = {
+			userId: req.user.id,
+			hallId: req.query.hallId,
+			startDate: req.query.startDate,
+			endDate: req.query.endDate,
+			title: req.query.title,
+			sort: req.query.sort,
+		}
+		const page = parseInt(req.query.page) || 1
+		const limit = 1000
+		const sort = req.query.sort || ['createdAt', 'ASC']
+
+		const csvData = await expenseService.getStatisticsCSV(
+			sort,
+			filter,
+			page,
+			limit
+		)
+
+		res.setHeader('Content-Type', 'text/csv')
+		res.setHeader(
+			'Content-Disposition',
+			'attachment; filename="statistics.csv"'
+		)
+
+		res.send(csvData)
+	} catch (error) {
+		console.error(error)
+		responseError(res, 500, { error: error.message })
+	}
+}
+
 export default {
 	createExpense,
 	getAllExpensesByUser,
 	updateExpense,
 	deleteExpense,
+	getStatisticsCSV,
 }

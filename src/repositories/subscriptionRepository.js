@@ -187,6 +187,10 @@ const trackVisit = async (memberId, sectionId) => {
 			subscription.usedSessions += 1
 			subscription.lastVisitDate = new Date()
 
+			const visitHistory = subscription.visitHistory || []
+
+			subscription.visitHistory = [...visitHistory, new Date()]
+
 			if (subscription.usedSessions >= subscription.totalSessions) {
 				subscription.status = 'inactive'
 			}

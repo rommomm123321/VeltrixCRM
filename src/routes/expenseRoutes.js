@@ -20,4 +20,10 @@ router.delete(
 	expenseController.deleteExpense
 )
 
+router.get(
+	'/expenses/download-statistics-csv',
+	authenticate,
+	expenseController.getStatisticsCSV
+)
+
 export default router

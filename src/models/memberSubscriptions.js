@@ -75,6 +75,10 @@ const MemberSubscriptions = sequelize.define(
 			type: DataTypes.DATE,
 			allowNull: true,
 		},
+		visitHistory: {
+			type: DataTypes.JSON,
+			allowNull: true,
+		},
 	},
 	{
 		tableName: 'MemberSubscriptions',
