@@ -10,6 +10,7 @@ import {
 } from '../models/index.js'
 import { responses } from '../utils/responses.js'
 import memberTransactionRepository from './memberTransactionRepository.js'
+import { v4 as uuidv4 } from 'uuid'
 
 const findAllByUser = async (
 	userId,
@@ -144,6 +145,7 @@ const create = async memberData => {
 		phone,
 		email,
 		registrationDate,
+		uuid: uuidv4(),
 	})
 	const expirationDate = new Date(registrationDate || new Date())
 	expirationDate.setDate(expirationDate.getDate() + 30)
