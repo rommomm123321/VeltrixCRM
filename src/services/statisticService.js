@@ -96,8 +96,8 @@ const getStatistics = async (sort, filter, page = 1, limit = 10) => {
 	}
 }
 
-const getStatisticsCSV = async (filter, page = 1, limit = 10) => {
-	const statistics = await getStatistics(filter, page, limit)
+const getStatisticsCSV = async (sort, filter, page = 1, limit = 10) => {
+	const statistics = await getStatistics(sort, filter, page, limit)
 	const transactions = statistics.transactions.map(transaction => {
 		const member = transaction.member || { firstName: 'Unknown', lastName: '' }
 		const hall = transaction.hall || { name: 'Unknown Hall' }

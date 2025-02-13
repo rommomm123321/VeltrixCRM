@@ -64,9 +64,15 @@ const getStatisticsCSV = async (req, res) => {
 			endDate: req.query.endDate,
 		}
 		const page = parseInt(req.query.page) || 1
-		const limit = 1000
+		const limit = 10000
+		const sort = req.query.sort || ['createdAt', 'ASC']
 
-		const csvData = await statisticService.getStatisticsCSV(filter, page, limit)
+		const csvData = await statisticService.getStatisticsCSV(
+			sort,
+			filter,
+			page,
+			limit
+		)
 
 		res.setHeader('Content-Type', 'text/csv')
 		res.setHeader(
