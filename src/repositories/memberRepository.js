@@ -335,6 +335,35 @@ const removeMany = async ids => {
 	})
 }
 
+const findMemberSubscriptionsByPhone = async uniqueId => {
+	const member = await Member.findOne({
+		where: { uuid: uniqueId },
+		include: [
+			{
+				model: MemberSubscriptions,
+				required: false,
+				include: [
+					{ model: Hall, required: false },
+					{ model: Section, required: false },
+					{ model: Subscription, required: false },
+				],
+			},
+		],
+	})
+	if (!member) {
+		throw new Error('Member not found')
+	}
+
+	const subscriptionsWithTrackUrl = member.MemberSubscriptions.map(
+		subscription => ({
+			...subscription.toJSON(),
+			trackUrl: `/track-visit?memberId=${member.id}&sectionId=${subscription.sectionId}`,
+		})
+	)
+
+	return subscriptionsWithTrackUrl
+}
+
 export default {
 	findAllByUser,
 	findAll,
@@ -343,4 +372,5 @@ export default {
 	update,
 	remove,
 	removeMany,
+	findMemberSubscriptionsByPhone,
 }

@@ -45,10 +45,15 @@ export const deleteMember = async ids => {
 	}
 }
 
+const getAllMemberSubscriptionsByPhone = async uniqueId => {
+	return await memberRepository.findMemberSubscriptionsByPhone(uniqueId)
+}
+
 export default {
 	getAllMembersByUser,
 	getMemberById,
 	createMember,
 	updateMember,
 	deleteMember,
+	getAllMemberSubscriptionsByPhone,
 }

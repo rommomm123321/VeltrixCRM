@@ -1,4 +1,5 @@
 'use strict'
+const { v4: uuidv4 } = require('uuid')
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
@@ -154,6 +155,7 @@ module.exports = {
 				userId,
 				hallId: insertedHalls[i % 100].id, // Link to the hall
 				registrationDate: new Date(),
+				uuid: uuidv4(),
 				createdAt: new Date(),
 				updatedAt: new Date(),
 			})

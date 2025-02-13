@@ -107,9 +107,14 @@ const deleteSubscription = async (req, res) => {
 
 const trackVisitController = async (req, res) => {
 	try {
-		await requestTrackVisit.validateAsync(req.body)
-		const { memberId, sectionId } = req.body
-		await subscriptionService.trackVisit(memberId, sectionId)
+		await requestTrackVisit.validateAsync({ ...req.body, ...req.query })
+		const memberId = req.body.memberId || req.query.memberId
+		const sectionId = req.body.sectionId || req.query.sectionId
+		const userId = req.user.id
+		if (!memberId || !sectionId) {
+			throw new Error('memberId and sectionId are required')
+		}
+		await subscriptionService.trackVisit(memberId, sectionId, userId)
 		responseSuccess(res, 200, { message: responses.success.visitTracked })
 	} catch (error) {
 		responseError(res, 400, { error: error.message })

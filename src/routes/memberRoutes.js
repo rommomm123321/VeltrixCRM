@@ -29,4 +29,9 @@ router.delete(
 )
 router.delete('/members', authenticate, memberController.deleteMember)
 
+router.get(
+	'/member-subscriptions',
+	memberController.getAllMemberSubscriptionsByPhone
+)
+
 export default router

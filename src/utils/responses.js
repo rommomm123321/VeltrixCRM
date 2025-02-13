@@ -45,6 +45,13 @@ export const responses = {
 		memberSubscriptionsNotFound: 'Членство не знайдено',
 		sectionNotBelongHall: 'Деякі зали не належать поточному користувачеві',
 		noIdsProvidedForDeletion: 'Не надано ідентифікатори для видалення',
+		uniqueIdIsRequired: "Унікальний код є обов'язковим",
+		noAccessToSection: 'У вас немає доступу до цієї секції',
+		noAccessToMember: 'У вас немає доступу до цього відвідувача',
+		noActiveSubscriptions:
+			'Немає активних абонементів для цього відвідувача і секції',
+		noRemainingSessions:
+			'У цього абонемента більше немає доступних відвідувань',
 	},
 	validation: {
 		emailRequired: 'Поле "Електронна пошта" є обов\'язковим.',

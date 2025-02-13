@@ -36,8 +36,8 @@ export const deleteSubscription = async ids => {
 	}
 }
 
-export const trackVisit = async (memberId, sectionId) => {
-	return await subscriptionRepository.trackVisit(memberId, sectionId)
+export const trackVisit = async (memberId, sectionId, userId) => {
+	return await subscriptionRepository.trackVisit(memberId, sectionId, userId)
 }
 export const renewSubscription = async (
 	memberId,

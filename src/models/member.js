@@ -34,6 +34,12 @@ const Member = sequelize.define(
 			type: DataTypes.DATE,
 			allowNull: false,
 		},
+		uuid: {
+			type: DataTypes.UUID,
+			defaultValue: DataTypes.UUIDV4,
+			allowNull: false,
+			unique: true,
+		},
 	},
 	{
 		paranoid: true,

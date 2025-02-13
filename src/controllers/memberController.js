@@ -78,10 +78,28 @@ const deleteMember = async (req, res) => {
 	}
 }
 
+const getAllMemberSubscriptionsByPhone = async (req, res) => {
+	try {
+		const { uniqueId } = req.query
+		if (!uniqueId) {
+			return responseError(res, 400, {
+				error: responses.error.uniqueIdIsRequired,
+			})
+		}
+		const subscriptions = await memberService.getAllMemberSubscriptionsByPhone(
+			uniqueId
+		)
+		responseSuccess(res, 200, subscriptions)
+	} catch (error) {
+		responseError(res, 500, { error: error.message })
+	}
+}
+
 export default {
 	getAllMembersByUser,
 	createMember,
 	getMemberById,
 	updateMember,
 	deleteMember,
+	getAllMemberSubscriptionsByPhone,
 }

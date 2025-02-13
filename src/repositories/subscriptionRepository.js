@@ -168,7 +168,23 @@ const removeMany = async ids => {
 	})
 }
 
-const trackVisit = async (memberId, sectionId) => {
+const trackVisit = async (memberId, sectionId, userId) => {
+	const section = await Section.findOne({
+		where: { id: sectionId, userId: userId },
+	})
+
+	if (!section) {
+		throw new Error(responses.error.noAccessToSection)
+	}
+
+	const member = await Member.findOne({
+		where: { id: memberId, userId: userId },
+	})
+
+	if (!member) {
+		throw new Error(responses.error.noAccessToMember)
+	}
+
 	const subscriptions = await MemberSubscriptions.findAll({
 		where: {
 			memberId: memberId,
@@ -179,7 +195,7 @@ const trackVisit = async (memberId, sectionId) => {
 	})
 
 	if (subscriptions.length === 0) {
-		throw new Error('No active subscriptions for this member and section')
+		throw new Error(responses.error.noActiveSubscriptions)
 	}
 
 	for (const subscription of subscriptions) {
@@ -197,7 +213,7 @@ const trackVisit = async (memberId, sectionId) => {
 
 			await subscription.save()
 		} else {
-			throw new Error('This subscription has no remaining sessions')
+			throw new Error(responses.error.noRemainingSessions)
 		}
 	}
 }
