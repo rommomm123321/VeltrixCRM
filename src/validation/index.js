@@ -74,11 +74,6 @@ export const requestUpdateSubscription = Joi.object({
 		'string.max': responses.validation.subscriptionNameMax,
 		'any.required': responses.validation.subscriptionNameRequired,
 	}),
-	numberOfSessions: Joi.number().integer().min(1).required().messages({
-		'number.base': responses.validation.subscriptionNumberOfSessionsInteger,
-		'number.min': responses.validation.subscriptionNumberOfSessionsMin,
-		'any.required': responses.validation.subscriptionNumberOfSessionsRequired,
-	}),
 	price: Joi.number().precision(2).positive().required().messages({
 		'number.base': responses.validation.subscriptionPriceNumber,
 		'number.precision': responses.validation.subscriptionPricePrecision,
