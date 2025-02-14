@@ -2,7 +2,8 @@ import { subscriptionService } from '../services/index.js'
 import { responseError, responseSuccess } from '../utils/responseHelper.js'
 import { responses } from '../utils/responses.js'
 import {
-	requestSubscription,
+	requestCreateSubscription,
+	requestUpdateSubscription,
 	requestTrackVisit,
 	requestRenewSubscription,
 } from '../validation/index.js'
@@ -45,7 +46,7 @@ const createSubscription = async (req, res) => {
 	const { id: userId } = req.user
 	const { sectionIds = [], ...subscriptionData } = req.body
 	try {
-		await requestSubscription.validateAsync(req.body)
+		await requestCreateSubscription.validateAsync(req.body)
 		const newSubscription = await subscriptionService.createSubscription(
 			{
 				...subscriptionData,
@@ -69,7 +70,7 @@ const updateSubscription = async (req, res) => {
 	const { id: userId } = req.user
 	const { sectionIds = [], ...subscriptionData } = req.body
 	try {
-		await requestSubscription.validateAsync(req.body)
+		await requestUpdateSubscription.validateAsync(req.body)
 		const updatedSubscription = await subscriptionService.updateSubscription(
 			req.params.id,
 			subscriptionData,

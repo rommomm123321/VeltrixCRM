@@ -45,7 +45,30 @@ export const requestSection = Joi.object({
 	}),
 })
 
-export const requestSubscription = Joi.object({
+export const requestCreateSubscription = Joi.object({
+	name: Joi.string().min(3).max(255).required().messages({
+		'string.min': responses.validation.subscriptionNameMin,
+		'string.max': responses.validation.subscriptionNameMax,
+		'any.required': responses.validation.subscriptionNameRequired,
+	}),
+	numberOfSessions: Joi.number().integer().min(1).required().messages({
+		'number.base': responses.validation.subscriptionNumberOfSessionsInteger,
+		'number.min': responses.validation.subscriptionNumberOfSessionsMin,
+		'any.required': responses.validation.subscriptionNumberOfSessionsRequired,
+	}),
+	price: Joi.number().precision(2).positive().required().messages({
+		'number.base': responses.validation.subscriptionPriceNumber,
+		'number.precision': responses.validation.subscriptionPricePrecision,
+		'number.positive': responses.validation.subscriptionPricePositive,
+		'any.required': responses.validation.subscriptionPriceRequired,
+	}),
+	sectionIds: Joi.array().items(Joi.number().integer()).optional().messages({
+		'array.base': responses.validation.subscriptionSectionIdsArray,
+		'number.base': responses.validation.subscriptionSectionIdsItems,
+	}),
+})
+
+export const requestUpdateSubscription = Joi.object({
 	name: Joi.string().min(3).max(255).required().messages({
 		'string.min': responses.validation.subscriptionNameMin,
 		'string.max': responses.validation.subscriptionNameMax,
