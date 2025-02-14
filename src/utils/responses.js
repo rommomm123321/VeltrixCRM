@@ -48,8 +48,7 @@ export const responses = {
 		uniqueIdIsRequired: "Унікальний код є обов'язковим",
 		noAccessToSection: 'У вас немає доступу до цієї секції',
 		noAccessToMember: 'У вас немає доступу до цього відвідувача',
-		noActiveSubscriptions:
-			'Немає активних абонементів для цього відвідувача і секції',
+		noActiveSubscriptions: 'Немає активних абонементів для цього відвідувача',
 		noRemainingSessions:
 			'У цього абонемента більше немає доступних відвідувань',
 	},

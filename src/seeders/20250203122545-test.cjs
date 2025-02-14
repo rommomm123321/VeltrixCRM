@@ -25,6 +25,7 @@ module.exports = {
 		for (let i = 1; i <= 100; i++) {
 			halls.push({
 				name: `Gym ${i}`,
+				image_url: null,
 				userId,
 				createdAt: new Date(),
 				updatedAt: new Date(),

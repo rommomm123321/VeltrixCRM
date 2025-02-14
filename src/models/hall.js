@@ -9,6 +9,10 @@ const Hall = sequelize.define(
 			allowNull: false,
 			unique: true,
 		},
+		image_url: {
+			type: DataTypes.STRING,
+			allowNull: true,
+		},
 	},
 	{
 		tableName: 'Halls',

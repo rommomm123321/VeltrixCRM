@@ -11,6 +11,7 @@ import {
 import { responses } from '../utils/responses.js'
 import memberTransactionRepository from './memberTransactionRepository.js'
 import { v4 as uuidv4 } from 'uuid'
+import sequelize from '../config/db.js'
 
 const findAllByUser = async (
 	userId,
@@ -264,8 +265,10 @@ const update = async (id, memberData) => {
 				existingSubscription.subscriptionId = subscriptionId
 				existingSubscription.priceAtPurchase = subscription.price
 				existingSubscription.totalSessions = subscription.numberOfSessions
+				existingSubscription.purchaseDate = new Date()
 				existingSubscription.expirationDate = expirationDate
 				existingSubscription.usedSessions = 0
+				existingSubscription.status = 'active'
 				await existingSubscription.save()
 
 				await memberTransactionRepository.addSubscriptionToMember(

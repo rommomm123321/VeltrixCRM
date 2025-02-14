@@ -25,6 +25,7 @@ export const requestHall = Joi.object({
 		'string.max': responses.validation.hallNameMax,
 		'any.required': responses.validation.hallNameRequired,
 	}),
+	image_url: Joi.optional(),
 })
 
 export const requestSection = Joi.object({

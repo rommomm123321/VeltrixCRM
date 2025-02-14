@@ -18,7 +18,7 @@ const routes = app => {
 	app.use('/api/v1/', statisticsRoutes)
 	app.use('/api/v1/', trainerRoutes)
 	app.use('/api/v1/', expenseRoutes)
-	// app.use('/api/v1', imageRoutes)
+	app.use('/api/v1', imageRoutes)
 }
 
 export default routes
