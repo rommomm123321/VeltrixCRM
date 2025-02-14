@@ -7,7 +7,6 @@ const Hall = sequelize.define(
 		name: {
 			type: DataTypes.STRING,
 			allowNull: false,
-			unique: true,
 		},
 		image_url: {
 			type: DataTypes.STRING,

@@ -85,7 +85,7 @@ const findAllByUser = async (
 		},
 	]
 
-	return await Member.findAndCountAll({
+	const result = await Member.findAndCountAll({
 		where,
 		order: [
 			sort,
@@ -95,7 +95,13 @@ const findAllByUser = async (
 		limit,
 		offset,
 		include,
+		distinct: true,
 	})
+
+	return {
+		rows: result.rows,
+		count: result.count,
+	}
 }
 
 const findAll = async () => {

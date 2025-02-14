@@ -40,10 +40,10 @@ const findById = async id => {
 }
 
 const create = async hallData => {
-	const hall = await Hall.findOne({ where: { name: hallData.name } })
-	if (hall) {
-		throw new Error(responses.error.hallNameUnique)
-	}
+	// const hall = await Hall.findOne({ where: { name: hallData.name } })
+	// if (hall) {
+	// 	throw new Error(responses.error.hallNameUnique)
+	// }
 	return await Hall.create(hallData)
 }
 
