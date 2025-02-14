@@ -265,6 +265,7 @@ const update = async (id, memberData) => {
 				existingSubscription.priceAtPurchase = subscription.price
 				existingSubscription.totalSessions = subscription.numberOfSessions
 				existingSubscription.expirationDate = expirationDate
+				existingSubscription.usedSessions = 0
 				await existingSubscription.save()
 
 				await memberTransactionRepository.addSubscriptionToMember(
