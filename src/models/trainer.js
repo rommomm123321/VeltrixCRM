@@ -21,10 +21,6 @@ const Trainer = sequelize.define(
 			type: DataTypes.INTEGER,
 			allowNull: true,
 		},
-		gender: {
-			type: DataTypes.ENUM('male', 'female', 'other'),
-			allowNull: false,
-		},
 		phone: {
 			type: DataTypes.STRING,
 			allowNull: false,

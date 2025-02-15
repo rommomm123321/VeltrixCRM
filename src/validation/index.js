@@ -98,15 +98,6 @@ export const requestMember = Joi.object({
 		'string.max': responses.validation.memberLastNameMax,
 		'any.required': responses.validation.memberLastNameRequired,
 	}),
-	age: Joi.number().min(6).max(100).required().messages({
-		'number.min': responses.validation.memberAgeMin,
-		'number.max': responses.validation.memberAgeMax,
-		'any.required': responses.validation.memberAgeRequired,
-	}),
-	gender: Joi.string().valid('male', 'female', 'other').required().messages({
-		'any.required': responses.validation.memberGenderRequired,
-		'string.valid': responses.validation.memberGenderValid,
-	}),
 	phone: Joi.string().max(200).allow(null).optional(),
 	email: Joi.string().max(200).allow(null).optional(),
 	registrationDate: Joi.date().allow(null).optional(),
@@ -146,10 +137,6 @@ export const requestTrainer = Joi.object({
 	}),
 	dateOfBirth: Joi.date().required().messages({
 		'any.required': responses.validation.trainerDateOfBirthRequired,
-	}),
-	gender: Joi.string().valid('male', 'female', 'other').required().messages({
-		'any.only': responses.validation.trainerGenderInvalid,
-		'any.required': responses.validation.trainerGenderRequired,
 	}),
 	phone: Joi.string()
 		.pattern(/^\d{10,15}$/)

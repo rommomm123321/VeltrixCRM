@@ -19,11 +19,7 @@ module.exports = {
 			},
 			age: {
 				type: Sequelize.INTEGER,
-				allowNull: false,
-			},
-			gender: {
-				type: Sequelize.ENUM('male', 'female', 'other'),
-				allowNull: false,
+				allowNull: true,
 			},
 			userId: {
 				type: Sequelize.INTEGER,

@@ -42,13 +42,18 @@ const findAllByUser = async (
 			required: !!filters.sectionId,
 		},
 	]
-	return await Subscription.findAndCountAll({
+	const result = await Subscription.findAndCountAll({
 		where,
 		order: [sort, ['id', 'DESC']],
 		limit,
 		offset,
-		include,
+		distinct: true,
 	})
+
+	return {
+		rows: result.rows,
+		count: result.count,
+	}
 }
 
 const findAll = async () => {

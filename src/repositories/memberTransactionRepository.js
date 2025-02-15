@@ -320,15 +320,7 @@ const getRevenue = async filter => {
 			},
 			{
 				model: Member,
-				attributes: [
-					'id',
-					'firstName',
-					'lastName',
-					'age',
-					'gender',
-					'phone',
-					'email',
-				],
+				attributes: ['id', 'firstName', 'lastName', 'phone', 'email'],
 				as: 'Member',
 			},
 		],
@@ -410,8 +402,6 @@ const getRevenue = async filter => {
 			[sequelize.col('Subscription.price'), 'price'],
 			[sequelize.col('Member.firstName'), 'firstName'],
 			[sequelize.col('Member.lastName'), 'lastName'],
-			[sequelize.col('Member.age'), 'age'],
-			[sequelize.col('Member.gender'), 'gender'],
 			[sequelize.col('Member.phone'), 'phone'],
 			[sequelize.col('Member.email'), 'email'],
 			[sequelize.col('MemberTransaction.transactionDate'), 'transactionDate'],
@@ -473,8 +463,6 @@ const getRevenue = async filter => {
 			price: parseFloat(member.dataValues.price) || 0,
 			firstName: member.dataValues.firstName,
 			lastName: member.dataValues.lastName,
-			age: member.dataValues.age,
-			gender: member.dataValues.gender,
 			phone: member.dataValues.phone,
 			email: member.dataValues.email,
 			totalSpent: parseFloat(member.dataValues.totalSpent) || 0,
@@ -501,22 +489,14 @@ const findAllStatistic = async (sort, filter, page = 1, limit = 10) => {
 	}
 	const offset = (page - 1) * limit
 
-	return await MemberTransaction.findAndCountAll({
+	const result = await MemberTransaction.findAndCountAll({
 		where: whereCondition,
 		order: [sort, ['transactionDate', 'DESC']],
 		include: [
 			{ model: Hall, attributes: ['id', 'name', 'deletedAt'], paranoid: false },
 			{
 				model: Trainer,
-				attributes: [
-					'id',
-					'firstName',
-					'lastName',
-					'age',
-					'gender',
-					'phone',
-					'deletedAt',
-				],
+				attributes: ['id', 'firstName', 'lastName', 'phone', 'deletedAt'],
 				paranoid: false,
 			},
 			{
@@ -535,8 +515,6 @@ const findAllStatistic = async (sort, filter, page = 1, limit = 10) => {
 					'id',
 					'firstName',
 					'lastName',
-					'age',
-					'gender',
 					'phone',
 					'email',
 					'deletedAt',
@@ -546,7 +524,13 @@ const findAllStatistic = async (sort, filter, page = 1, limit = 10) => {
 		],
 		limit: limit,
 		offset: offset,
+		distinct: true,
 	})
+
+	return {
+		rows: result.rows,
+		count: result.count,
+	}
 }
 
 const getTotalRevenue = async (filter = {}) => {

@@ -14,11 +14,7 @@ const Member = sequelize.define(
 		},
 		age: {
 			type: DataTypes.INTEGER,
-			allowNull: false,
-		},
-		gender: {
-			type: DataTypes.ENUM('male', 'female', 'other'),
-			allowNull: false,
+			allowNull: true,
 		},
 		phone: {
 			type: DataTypes.STRING,

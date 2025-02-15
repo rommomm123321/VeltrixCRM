@@ -64,9 +64,7 @@ module.exports = {
 				userId,
 				firstName: `TrainerFirstName ${i}`,
 				lastName: `TrainerLastName ${i}`,
-				age: 20 + (i % 40),
 				phone: `38000000000${i}`,
-				gender: i % 2 === 0 ? 'male' : 'female',
 				dateOfBirth: new Date(birthYear, birthMonth, birthDay),
 				createdAt: new Date(),
 				updatedAt: new Date(),
@@ -149,8 +147,6 @@ module.exports = {
 			members.push({
 				firstName: `FirstName ${i}`,
 				lastName: `LastName ${i}`,
-				age: 20 + (i % 40),
-				gender: i % 2 === 0 ? 'male' : 'female',
 				phone: `38000000000${i}`,
 				email: `member${i}@example.com`,
 				userId,

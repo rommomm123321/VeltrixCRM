@@ -43,12 +43,17 @@ const findAllByUser = async (
 		}
 	}
 
-	return await Trainer.findAndCountAll({
+	const result = await Trainer.findAndCountAll({
 		where,
 		order: [sort, ['id', 'DESC']],
 		limit,
-		offset,
+		distinct: true,
 	})
+
+	return {
+		rows: result.rows,
+		count: result.count,
+	}
 }
 
 const findAll = async () => {

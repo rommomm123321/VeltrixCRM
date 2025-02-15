@@ -23,12 +23,18 @@ const findAllByUser = async (
 	if (filters.name) {
 		where.name = { [Op.iLike]: `%${filters.name}%` }
 	}
-	return await Hall.findAndCountAll({
+	const result = await Hall.findAndCountAll({
 		where,
 		order: [sort, ['id', 'DESC']],
 		limit,
 		offset,
+		distinct: true,
 	})
+
+	return {
+		rows: result.rows,
+		count: result.count,
+	}
 }
 
 const findAll = async where => {

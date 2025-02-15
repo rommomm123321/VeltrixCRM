@@ -94,9 +94,6 @@ export const responses = {
 		memberAgeMin: 'Вік повинен бути не менше 18 років.',
 		memberAgeMax: 'Вік повинен бути не більше 100 років.',
 		memberAgeRequired: 'Поле "Вік" є обов\'язковим.',
-		memberGenderRequired: 'Поле "Стать" є обов\'язковим.',
-		memberGenderValid:
-			'Поле "Стать" повинно бути одне з: "male", "female", "other".',
 		memberHallIdRequired: 'Поле "hallId" є обов\'язковим.',
 		memberHallIdNumber: 'Поле "hallId" повинно бути числом.',
 		memberSectionsArray: 'Поле "sections" повинно бути масивом.',
@@ -127,9 +124,6 @@ export const responses = {
 		trainerAgeMin: 'Вік тренера повинен бути не менше 18 років.',
 		trainerAgeMax: 'Вік тренера повинен бути не більше 100 років.',
 		trainerDateOfBirthRequired: "Дата народження є обов'язковою.",
-		trainerGenderInvalid:
-			'Поле "Стать тренера" повинно бути одне з: "male", "female", "other".',
-		trainerGenderRequired: 'Поле "Стать тренера" є обов\'язковим.',
 		trainerPhoneInvalid: 'Невірний номер телефону тренера.',
 		trainerPhoneRequired: 'Поле "Телефон тренера" є обов\'язковим.',
 		trainerPhoneUnique: 'Телефон тренера вже використовується.',

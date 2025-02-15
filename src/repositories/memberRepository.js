@@ -39,10 +39,6 @@ const findAllByUser = async (
 		where.lastName = { [Op.iLike]: `%${filters.lastName}%` }
 	}
 
-	if (filters.email) {
-		where.email = { [Op.iLike]: `%${filters.email}%` }
-	}
-
 	if (filters.phone) {
 		where.phone = { [Op.iLike]: `%${filters.phone}%` }
 	}
@@ -119,10 +115,7 @@ const create = async memberData => {
 		userId,
 		firstName,
 		lastName,
-		age,
-		gender,
 		phone,
-		email,
 		registrationDate,
 	} = memberData
 
@@ -136,21 +129,12 @@ const create = async memberData => {
 	if (existingMember) {
 		throw new Error(responses.validation.memberPhoneRequired)
 	}
-	const existingMemberWithEmail = await Member.findOne({
-		where: { email: memberData.email },
-	})
-	if (memberData.email && existingMemberWithEmail) {
-		throw new Error(responses.validation.memberEmailRequired)
-	}
 	const newMember = await Member.create({
 		userId,
 		hallId,
 		firstName,
 		lastName,
-		age,
-		gender,
 		phone,
-		email,
 		registrationDate,
 		uuid: uuidv4(),
 	})
@@ -214,25 +198,12 @@ const update = async (id, memberData) => {
 	if (existingMember && existingMember.id != id) {
 		throw new Error(responses.validation.memberPhoneRequired)
 	}
-	const existingMemberWithEmail = await Member.findOne({
-		where: { email: memberData.email },
-	})
-	if (
-		memberData.email &&
-		existingMemberWithEmail &&
-		existingMemberWithEmail.id != id
-	) {
-		throw new Error(responses.validation.memberEmailRequired)
-	}
 
 	await member.update({
 		hallId: memberData.hallId,
 		firstName: memberData.firstName,
 		lastName: memberData.lastName,
-		age: memberData.age,
-		gender: memberData.gender,
 		phone: memberData.phone,
-		email: memberData.email,
 		registrationDate: new Date(memberData.registrationDate),
 	})
 

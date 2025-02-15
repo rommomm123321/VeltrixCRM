@@ -37,8 +37,6 @@ const getRevenue = async filter => {
 								memberId: member.memberId,
 								firstName: member.firstName,
 								lastName: member.lastName,
-								age: member.age,
-								gender: member.gender,
 								phone: member.phone,
 								email: member.email,
 								totalSpent: member.totalSpent || 0,

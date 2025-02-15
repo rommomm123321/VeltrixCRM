@@ -49,13 +49,19 @@ const findAllByUser = async (
 			required: !!filters.trainerId,
 		},
 	]
-	return await Section.findAndCountAll({
+	const result = await Section.findAndCountAll({
 		where,
 		order: [sort, ['id', 'DESC']],
 		limit,
 		offset,
 		include,
+		distinct: true,
 	})
+
+	return {
+		rows: result.rows,
+		count: result.count,
+	}
 }
 
 const findAll = async where => {
