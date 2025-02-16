@@ -47,6 +47,7 @@ const findAllByUser = async (
 		order: [sort, ['id', 'DESC']],
 		limit,
 		offset,
+		include,
 		distinct: true,
 	})
 

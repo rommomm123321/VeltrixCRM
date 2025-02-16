@@ -173,3 +173,11 @@ export const requestRenewSubscription = Joi.object({
 			responses.validation.renewSubscriptionSubscriptionIdRequired,
 	}),
 })
+
+export const requestExpense = Joi.object({
+	title: Joi.string().min(2).max(255).required(),
+	description: Joi.optional(),
+	amount: Joi.number().precision(2).positive().required(),
+	date: Joi.date().required(),
+	hallId: Joi.number().integer().required(),
+})

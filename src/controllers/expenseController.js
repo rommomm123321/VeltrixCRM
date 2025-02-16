@@ -1,5 +1,6 @@
 import { expenseService } from '../services/index.js'
 import { responseSuccess, responseError } from '../utils/responseHelper.js'
+import { requestExpense } from '../validation/index.js'
 
 const getAllExpensesByUser = async (req, res) => {
 	try {
@@ -28,7 +29,7 @@ const getAllExpensesByUser = async (req, res) => {
 
 const createExpense = async (req, res) => {
 	try {
-		// await requestHall.validateAsync(req.body)
+		await requestExpense.validateAsync(req.body)
 		const newHall = await expenseService.createExpense({
 			...req.body,
 			userId: req.user.id,
@@ -41,7 +42,7 @@ const createExpense = async (req, res) => {
 
 const updateExpense = async (req, res) => {
 	try {
-		// await requestHall.validateAsync(req.body)
+		await requestExpense.validateAsync(req.body)
 		const updatedHall = await expenseService.updateExpense(
 			req.params.id,
 			req.body
